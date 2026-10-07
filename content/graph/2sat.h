@@ -15,9 +15,9 @@
  *  ts.solve(); // Returns true iff it is solvable
  *  ts.values[0..N-1] holds the assigned values to the vars
  * Time: O(N+E), where N is the number of boolean variables, and E is the number of clauses.
- * Status: stress-tested
  */
 #pragma once
+#include "SCC.h"
 struct TwoSat {
   int N;
   vector<vector<int>> gr;
@@ -47,31 +47,14 @@ struct TwoSat {
     }
     either(cur, ~li[1]);
   }
-  vector<int> val, comp, z;
-  int time = 0;
-  int dfs(int i) {
-    int low = val[i] = ++time, x;
-    z.push_back(i);
-    for (int e : gr[i])
-      if (!comp[e])
-        low = min(low, val[e] ?: dfs(e));
-    if (low == val[i]) do {
-        x = z.back();
-        z.pop_back();
-        comp[x] = low;
-        if (values[x >> 1] == -1)
-          values[x >> 1] = x & 1;
-      } while (x != i);
-    return val[i] = low;
-  }
   bool solve() {
-    values.assign(N, -1);
-    val.assign(2 * N, 0);
-    comp = val;
-    for (int i = 0; i < (2 * N); ++i)
-      if (!comp[i]) dfs(i);
-    for (int i = 0; i < (N); ++i)
-      if (comp[2 * i] == comp[2 * i + 1]) return 0;
-    return 1;
+    SCC scc(gr, 0);
+    values.assign(N, 0);
+    for (int i = 0; i < N; i++) {
+      if (scc.comp[2 * i] == scc.comp[2 * i + 1]) return false;
+      // Node 2*i means false; node 2*i+1 means true.
+      values[i] = scc.comp[2 * i] > scc.comp[2 * i + 1];
+    }
+    return true;
   }
 };

@@ -3,32 +3,42 @@
  * Date: 2020-02-20
  * License: CC0
  * Source: Folklore
- * Description: Data structure for computing lowest common ancestors in a tree
- * (with 0 as root). C should be an adjacency list of the tree, either directed
- * or undirected.
- * Time: $O(N \log N + Q)$
- * Status: stress-tested
+ * Description: Binary-lifting LCA using up[u][k] and depth h[u].
+ * adj is an undirected tree or directed parent-to-child tree. Default root is 1;
+ * pass root=0 for a 0-based tree. time[u] is the DFS entry order for virtual trees.
+ * distance returns the number of edges, not the sum of edge weights.
+ * Usage: LCA tree(adj); int w = tree.lca(u,v); int p = tree.goUp(u,steps);
+ * Time: $O(N \log N)$ construction and memory; $O(\log N)$ per query.
  */
 #pragma once
-
-#include "../data-structures/RMQ.h"
+#include "BinaryLifting.h"
 struct LCA {
-  int T = 0;
-  vector<int> time, path, ret;
-  SparseTable<int> rmq;
-  LCA(vector<vector<int>> &C) : time(sz(C)), rmq((dfs(C, 0, -1), ret)) {}
-  void dfs(vector<vector<int>> &C, int v, int par) {
-    time[v] = T++;
-    for (int y : C[v])
-      if (y != par) {
-        path.push_back(v), ret.push_back(time[v]);
-        dfs(C, y, v);
-      }
+  int LOG = 1;
+  int timer = 0;
+  vector<vector<int>> up;
+  vector<int> h, time;
+  LCA(const vector<vector<int>> &adj, int root = 1) {
+    int n = sz(adj);
+    while ((1LL << LOG) <= n) LOG++;
+    up.assign(n, vector<int>(LOG));
+    h.assign(n, 0);
+    time.assign(n, -1);
+    if (root >= 0 && root < n) dfs(adj, root, root);
   }
-  int lca(int a, int b) {
-    if (a == b) return a;
-    tie(a, b) = minmax(time[a], time[b]);
-    return path[rmq.query(a, b)];
+  void dfs(const vector<vector<int>> &adj, int u, int parent) {
+    time[u] = timer++;
+    up[u][0] = parent;
+    for (int k = 1; k < LOG; k++) up[u][k] = up[up[u][k - 1]][k - 1];
+    for (int v : adj[u]) {
+      if (v == parent) continue;
+      h[v] = h[u] + 1;
+      dfs(adj, v, u);
+    }
   }
-  //dist(a,b){return depth[a] + depth[b] - 2*depth[lca(a,b)];}
+  int goUp(int u, int steps) const { return ::goUp(up, u, steps); }
+  int lca(int u, int v) const { return ::lca(up, h, u, v); }
+  int distance(int u, int v) const {
+    int w = lca(u, v);
+    return h[u] + h[v] - 2 * h[w];
+  }
 };

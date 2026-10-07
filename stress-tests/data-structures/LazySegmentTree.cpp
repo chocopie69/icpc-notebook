@@ -15,11 +15,12 @@ int main() {
 	vi v(N);
 	iota(all(v), 0);
 	random_shuffle(all(v), [](int x) { return ra() % x; });
-	LazySegTree* tr = new LazySegTree(v,0,N);
+	LazySegTree* tr = new LazySegTree(vector<int>(N + 1));
+	rep(i,0,N) tr->set(i + 1, i + 1, v[i]);
 	rep(i,0,N) rep(j,0,N) if (i <= j) {
-		int ma = -inf;
+		int ma = INT_MIN;
 		rep(k,i,j) ma = max(ma, v[k]);
-		assert(ma == tr->query(i,j));
+		assert(ma == tr->query(i + 1,j));
 	}
 	rep(it,0,1000000) {
 		int i = ra() % (N+1), j = ra() % (N+1);
@@ -28,17 +29,17 @@ int main() {
 
 		int r = ra() % 100;
 		if (r < 30) {
-			::res = tr->query(i, j);
-			int ma = -inf;
+			::res = tr->query(i + 1, j);
+			int ma = INT_MIN;
 			rep(k,i,j) ma = max(ma, v[k]);
 			assert(ma == ::res);
 		}
 		else if (r < 70) {
-			tr->add(i, j, x);
+			tr->add(i + 1, j, x);
 			rep(k,i,j) v[k] += x;
 		}
 		else {
-			tr->set(i, j, x);
+			tr->set(i + 1, j, x);
 			rep(k,i,j) v[k] = x;
 		}
 	}

@@ -65,8 +65,8 @@ void test_n(int n, int num) {
 		}
 		vector<int> par(n), depth(n);
 		getPars(tree, 0, 0, 0, par, depth);
-		vector<vi> tbl = treeJump(par);
-		LCA new_lca(tree);
+		vector<vi> tbl = buildAncestorTable(par);
+		LCA new_lca(tree, 0);
 		old::LCA old_lca(oldTree);
 		for (int i=0; i<100; i++) {
 			int a = rand()%n, b = rand()%n;

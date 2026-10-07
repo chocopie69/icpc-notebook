@@ -25,7 +25,6 @@ Graph theory
 	Hopcroft-Karp
 	Hall's marriage theorem
 	Graphical sequences
-	Floyd-Warshall
 	Euler cycles
 	Flow networks
 	* Augmenting paths

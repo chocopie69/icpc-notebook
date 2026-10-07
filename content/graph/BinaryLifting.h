@@ -3,34 +3,38 @@
  * Date: 2015-02-06
  * License: CC0
  * Source: Folklore
- * Description: Calculate power of two jumps in a tree,
- * to support fast upward jumps and LCAs.
- * Assumes the root node points to itself.
- * Time: construction $O(N \log N)$, queries $O(\log N)$
- * Status: Tested at Petrozavodsk, also stress-tested via LCA.cpp
+ * Description: Ancestor table up[u][k] stores the ancestor of u after $2^k$ steps.
+ * parent[root] must equal root; parent and depth must use the same vertex indices.
+ * Supports either 0-based vectors or 1-based vectors with index 0 reserved.
+ * goUp requires 0 <= steps <= depth[u].
+ * Usage: auto up = buildAncestorTable(parent); int p = goUp(up,u,3); int w = lca(up,h,u,v);
+ * Time: $O(N \log N)$ construction and memory; $O(\log N)$ per query.
  */
 #pragma once
-vector<vector<int>> treeJump(vector<int> &P) {
-  int on = 1, d = 1;
-  while (on < sz(P)) on *= 2, d++;
-  vector<vector<int>> jmp(d, P);
-  for (int i = 1; i < (d); ++i)
-    for (int j = 0; j < (sz(P)); ++j)
-      jmp[i][j] = jmp[i - 1][jmp[i - 1][j]];
-  return jmp;
+vector<vector<int>> buildAncestorTable(const vector<int> &parent) {
+  int n = sz(parent);
+  int LOG = 1;
+  while ((1LL << LOG) <= n) LOG++;
+  vector<vector<int>> up(n, vector<int>(LOG));
+  for (int u = 0; u < n; u++) up[u][0] = parent[u];
+  for (int k = 1; k < LOG; k++)
+    for (int u = 0; u < n; u++) up[u][k] = up[up[u][k - 1]][k - 1];
+  return up;
 }
-int jmp(vector<vector<int>> &tbl, int nod, int steps) {
-  for (int i = 0; i < (sz(tbl)); ++i)
-    if (steps & (1 << i)) nod = tbl[i][nod];
-  return nod;
+int goUp(const vector<vector<int>> &up, int u, int steps) {
+  for (int k = 0; k < sz(up[u]); k++)
+    if ((steps >> k) & 1) u = up[u][k];
+  return u;
 }
-int lca(vector<vector<int>> &tbl, vector<int> &depth, int a, int b) {
-  if (depth[a] < depth[b]) swap(a, b);
-  a = jmp(tbl, a, depth[a] - depth[b]);
-  if (a == b) return a;
-  for (int i = sz(tbl); i--;) {
-    int c = tbl[i][a], d = tbl[i][b];
-    if (c != d) a = c, b = d;
+int lca(const vector<vector<int>> &up, const vector<int> &h, int u, int v) {
+  if (h[u] < h[v]) swap(u, v);
+  u = goUp(up, u, h[u] - h[v]);
+  if (u == v) return u;
+  for (int k = sz(up[u]) - 1; k >= 0; k--) {
+    if (up[u][k] != up[v][k]) {
+      u = up[u][k];
+      v = up[v][k];
+    }
   }
-  return tbl[0][a];
+  return up[u][0];
 }

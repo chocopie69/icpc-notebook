@@ -11,20 +11,19 @@
  * values are stored in the edges, as opposed to the nodes. All values
  * initialized to the segtree default. Root must be 0.
  * Time: O((\log N)^2)
- * Status: stress-tested against old HLD
+ * Usage: HLD<false> hld(adj); hld.tree.set(1,sz(adj),0);
+ * Internal positions are 0-based; segment-tree calls convert to inclusive 1-based ranges.
  */
 #pragma once
 
 #include "../data-structures/LazySegmentTree.h"
-template <bool VALS_EDGES>
-struct HLD {
+template <bool VALS_EDGES> struct HLD {
   int N, tim = 0;
   vector<vector<int>> adj;
   vector<int> par, siz, rt, pos;
-  LazySegTree *tree;
+  LazySegTree tree;
   HLD(vector<vector<int>> adj_)
-      : N(sz(adj_)), adj(adj_), par(N, -1), siz(N, 1),
-        rt(N), pos(N), tree(new LazySegTree(0, N)) {
+      : N(sz(adj_)), adj(adj_), par(N, -1), siz(N, 1), rt(N), pos(N), tree(N) {
     dfsSz(0);
     dfsHld(0);
   }
@@ -44,8 +43,7 @@ struct HLD {
       dfsHld(u);
     }
   }
-  template <class B>
-  void process(int u, int v, B op) {
+  template <class B> void process(int u, int v, B op) {
     for (;; v = par[rt[v]]) {
       if (pos[u] > pos[v]) swap(u, v);
       if (rt[u] == rt[v]) break;
@@ -54,16 +52,14 @@ struct HLD {
     op(pos[u] + VALS_EDGES, pos[v] + 1);
   }
   void modifyPath(int u, int v, int val) {
-    process(u, v, [&](int l, int r) { tree->add(l, r, val); });
+    process(u, v, [&](int l, int r) { tree.add(l + 1, r, val); });
   }
   int queryPath(int u, int v) { // Modify depending on problem
-    int res = -1e9;
-    process(u, v, [&](int l, int r) {
-      res = max(res, tree->query(l, r));
-    });
+    int res = INT_MIN;
+    process(u, v, [&](int l, int r) { res = max(res, tree.query(l + 1, r)); });
     return res;
   }
   int querySubtree(int v) { // modifySubtree is similar
-    return tree->query(pos[v] + VALS_EDGES, pos[v] + siz[v]);
+    return tree.query(pos[v] + VALS_EDGES + 1, pos[v] + siz[v]);
   }
 };

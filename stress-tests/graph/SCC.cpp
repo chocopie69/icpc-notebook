@@ -57,9 +57,10 @@ int main() {
 				}
 			}
 			vi comp2 = old::scc(adj);
-			scc(adj, [&](vi& v) {
-				compsize[ncomps] = sz(v);
-			});
+			SCC result(adj, 0);
+			const vi &comp = result.comp;
+			int ncomps = sz(result.components);
+			rep(id,0,ncomps) compsize[id] = sz(result.components[id]);
 			if (comp != comp2) {
 				for(auto &x: comp) cout << x << ' ';
 				cout << endl;

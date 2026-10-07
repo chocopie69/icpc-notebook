@@ -3,29 +3,53 @@
  * Date: 2017-10-31
  * License: CC0
  * Source: folklore
- * Description: Zero-indexed max-tree. Bounds are inclusive to the left and exclusive to the right.
- * Can be changed by modifying T, f and unit.
- * Time: O(\log N)
- * Status: stress-tested
+ * Description: Recursive max segment tree. Positions are 1-based; query(l,r) includes both endpoints.
+ * update(pos,val) assigns a[pos]. Initially all positions equal def.
+ * To change the aggregate, edit T, unit and merge; unit must be its identity.
+ * Usage: SegTree seg(n); seg.update(3, 5); int ans = seg.query(1, 3);
+ * Time: $O(\log N)$ per operation; $O(N)$ memory.
  */
 #pragma once
 struct SegTree {
   typedef int T;
   static constexpr T unit = INT_MIN;
-  T f(T a, T b) { return max(a, b); } // (any associative fn)
-  vector<T> s;
   int n;
-  SegTree(int n = 0, T def = unit) : s(2 * n, def), n(n) {}
-  void update(int pos, T val) {
-    for (s[pos += n] = val; pos /= 2;)
-      s[pos] = f(s[pos * 2], s[pos * 2 + 1]);
+  vector<T> seg;
+  SegTree(int n = 0, T def = unit) : n(n), seg(4 * n + 4, unit) {
+    if (n > 0) build(1, 1, n, def);
   }
-  T query(int b, int e) { // query [b, e)
-    T ra = unit, rb = unit;
-    for (b += n, e += n; b < e; b /= 2, e /= 2) {
-      if (b % 2) ra = f(ra, s[b++]);
-      if (e % 2) rb = f(s[--e], rb);
+  T merge(T a, T b) const { return max(a, b); }
+  void build(int id, int lo, int hi, T val) {
+    if (lo == hi) {
+      seg[id] = val;
+      return;
     }
-    return f(ra, rb);
+    int mid = (lo + hi) / 2;
+    build(id * 2, lo, mid, val);
+    build(id * 2 + 1, mid + 1, hi, val);
+    seg[id] = merge(seg[id * 2], seg[id * 2 + 1]);
+  }
+  void update(int id, int lo, int hi, int pos, T val) {
+    if (lo == hi) {
+      seg[id] = val;
+      return;
+    }
+    int mid = (lo + hi) / 2;
+    if (pos <= mid)
+      update(id * 2, lo, mid, pos, val);
+    else
+      update(id * 2 + 1, mid + 1, hi, pos, val);
+    seg[id] = merge(seg[id * 2], seg[id * 2 + 1]);
+  }
+  void update(int pos, T val) { update(1, 1, n, pos, val); }
+  T query(int id, int lo, int hi, int l, int r) const {
+    if (r < lo || hi < l) return unit;
+    if (l <= lo && hi <= r) return seg[id];
+    int mid = (lo + hi) / 2;
+    return merge(query(id * 2, lo, mid, l, r), query(id * 2 + 1, mid + 1, hi, l, r));
+  }
+  T query(int l, int r) const {
+    if (n == 0 || l > r) return unit;
+    return query(1, 1, n, l, r);
   }
 };

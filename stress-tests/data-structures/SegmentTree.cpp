@@ -58,11 +58,11 @@ int main() {
 		maximum::SegTree tr(N);
 		ll sum = 0;
 		rep(it,0,1000000) {
-			tr.update(ra() % N, ra());
+			tr.update(ra() % N + 1, ra());
 			int i = ra() % N;
 			int j = ra() % N;
 			if (i > j) swap(i, j);
-			int v = tr.query(i, j+1);
+			int v = tr.query(i + 1, j + 1);
 			sum += v;
 		}
 		cout << sum << endl;
@@ -80,11 +80,11 @@ int main() {
 			if (r < 30) {
 				int ma = tr.unit;
 				rep(k,i,j) ma = max(ma, v[k]);
-				assert(ma == tr.query(i,j));
+				assert(ma == tr.query(i + 1,j));
 			}
 			else {
 				i = min(i, n-1);
-				tr.update(i, x);
+				tr.update(i + 1, x);
 				v[i] = x;
 			}
 		}

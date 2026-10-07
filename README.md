@@ -54,6 +54,18 @@ use casts such as `(ll)(value)` and rely on the template's integer type definiti
 Common types use descriptive names: `SegTree`, `LazySegTree`, `Fenwick`, `Fenwick2D`,
 `DSU`, `RollbackDSU`, `SparseTable`, `OrderedSet`, `CHT`, and `RollingHash`.
 
+The rewritten core snippets use opening braces on the same line, omit braces for
+simple single-statement branches and loops, and keep small wrappers on one line.
+Branches with multiple operations remain explicit; comma expressions are avoided.
+Fenwick and segment trees use 1-based positions and inclusive query ranges `[l, r]`.
+`Fenwick::lowerBound(sum)` returns 0 for a nonpositive target and n+1 if no prefix reaches it.
+`LazySegTree(a)` expects a 1-based vector with a[0] unused; `LazySegTree(n, 0)` starts with zeros.
+LCA and SCC default to 1-based adjacency lists. Use `LCA(adj, 0)` or `SCC(adj, 0)`
+for a 0-based graph. The ancestor table is `up[u][k]`; `buildAncestorTable` replaces `treeJump`.
+SCC exposes `comp` and `components` directly, without a callback.
+String indices and KMP match positions are 0-based. Each rewritten header states its
+indexing, assumptions, complexity and a small usage example.
+
 Each algorithm contains a header with the author of the code, the date it
 was added, a description of the algorithm, its testing status, and preferably also
 source, license and time complexity.

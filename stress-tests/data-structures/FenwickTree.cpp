@@ -9,17 +9,17 @@ int main() {
 		vi t(N);
 		rep(i,0,N) {
 			int v = rand() % 3;
-			fw.update(i, v);
+			fw.update(i + 1, v);
 			t[i] += v;
 		}
 		int q = rand() % 20;
-		int ind = fw.lower_bound(q);
+		int ind = fw.lowerBound(q);
 		int res = -1, sum = 0;
 		rep(i,0,N+1) {
 			if (sum < q) res = i;
 			if (i != N) sum += t[i];
 		}
-		assert(res == ind);
+		assert(res + 1 == ind);
 	}
 	cout<<"Tests passed!"<<endl;
 }

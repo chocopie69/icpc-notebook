@@ -26,13 +26,13 @@ struct HLD {
 		for(auto &c: C) {
 			c.tree = {sz(c.nodes), 0};
 			for (int ni : c.nodes)
-				c.tree.update(V[ni].pos, V[ni].val);
+				c.tree.update(V[ni].pos + 1, V[ni].val);
 		}
 	}
 
 	void update(int node, T val) {
 		Node& n = V[node]; n.val = val;
-		if (n.chain != -1) C[n.chain].tree.update(n.pos, val);
+		if (n.chain != -1) C[n.chain].tree.update(n.pos + 1, val);
 	}
 
 	int pard(Node& nod) {
@@ -48,7 +48,7 @@ struct HLD {
 			if (n1.chain != -1 && n1.chain == n2.chain) {
 				int lo = n1.pos, hi = n2.pos;
 				if (lo > hi) swap(lo, hi);
-				f(ans, C[n1.chain].tree.query(lo, hi));
+				f(ans, C[n1.chain].tree.query(lo + 1, hi));
 				i1 = i2 = C[n1.chain].nodes[hi];
 			} else {
 				if (pard(n1) < pard(n2))
@@ -57,8 +57,8 @@ struct HLD {
 					f(ans, n1.val), i1 = n1.par;
 				else {
 					Chain& c = C[n1.chain];
-					f(ans, n1.pos ? c.tree.query(n1.pos, sz(c.nodes))
-					              : c.tree.s[1]);
+					f(ans, n1.pos ? c.tree.query(n1.pos + 1, sz(c.nodes))
+					              : c.tree.seg[1]);
 					i1 = c.par;
 				}
 			}
