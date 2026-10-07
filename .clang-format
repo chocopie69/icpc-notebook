@@ -1,0 +1,13 @@
+BasedOnStyle: LLVM
+IndentWidth: 2
+TabWidth: 2
+UseTab: Never
+ColumnLimit: 0
+SeparateDefinitionBlocks: Never
+ReflowComments: false
+SortIncludes: Never
+SkipMacroDefinitionBody: true
+AllowShortFunctionsOnASingleLine: All
+AllowShortLoopsOnASingleLine: true
+AllowShortIfStatementsOnASingleLine: WithoutElse
+CommentPragmas: 'include-line|exclude-line|keep-include'
