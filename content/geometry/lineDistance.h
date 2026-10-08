@@ -3,17 +3,17 @@
  * Date: 2009-03-21
  * License: CC0
  * Source: Basic math
- * Description:\\
-\begin{minipage}{75mm}
-Returns the signed distance between point p and the line containing points a and b.
-Positive value on left side and negative on right as seen from a towards b. a==b gives nan.
-P is supposed to be Point<T> where T is e.g. double or long long.
-It uses products in intermediate steps so watch out for overflow if using int or long long.
-\end{minipage}
-\begin{minipage}{15mm}
-\includegraphics[width=\textwidth]{content/geometry/lineDistance}
-\end{minipage}
+ * Description: \\
+ * \begin{minipage}{75mm}
+ * Signed distance to the infinite line a->b: positive on the left, negative on the right.
+ * Require a!=b; take abs for unsigned distance. Cross products must fit the coordinate type.
+ * \end{minipage}
+ * \begin{minipage}{15mm}
+ * \includegraphics[width=\textwidth]{content/geometry/lineDistance}
+ * \end{minipage}
  * Status: tested
+ * Usage: double distance=abs(lineDist(Point<double>(0,0),
+ *   Point<double>(2,0),Point<double>(1,3))); // 3
  */
 #pragma once
 

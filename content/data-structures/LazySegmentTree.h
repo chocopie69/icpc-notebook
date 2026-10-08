@@ -3,11 +3,12 @@
  * Date: 2016-10-08
  * License: CC0
  * Source: me
- * Description: Array-based segment tree for range assignment, range addition and range maximum.
- * Positions are 1-based; all ranges [l,r] are inclusive. Values and additions must fit int.
- * Vector constructor uses a[1..n] (a[0] unused). Initial value defaults to -inf.
- * hasSet distinguishes a pending assignment from no assignment, so every int value is allowed.
- * Usage: LazySegTree seg(n, 0); seg.add(1,n,3); seg.set(2,4,5); int ans = seg.query(1,n);
+ * Description: Range assignment, addition and maximum on inclusive, 1-based [l,r]. The vector constructor
+ * ignores values[0]; default initial value is -inf, so initialize finite values before addition.
+ * Values and additions must fit int. Keep hasSet for assignments; changing to sums also requires
+ * segment lengths.
+ * Usage: LazySegTree seg(5,0); seg.add(1,3,4); seg.set(2,2,9);
+ * int best=seg.query(1,5); // 9
  * Time: $O(\log N)$ per operation; $O(N)$ memory.
  */
 #pragma once
@@ -21,18 +22,18 @@ struct LazySegTree {
   };
   int n;
   vector<Node> seg;
-  LazySegTree(int n, int initial = -inf) : n(n), seg(4 * n + 4, Node{initial}) {}
-  LazySegTree(const vector<int> &a) : LazySegTree(max(0, sz(a) - 1)) {
-    if (n > 0) build(1, 1, n, a);
+  LazySegTree(int n, int initialValue = -inf) : n(n), seg(4 * n + 4, Node{initialValue}) {}
+  LazySegTree(const vector<int> &values) : LazySegTree(max(0, sz(values) - 1)) {
+    if (n > 0) build(1, 1, n, values);
   }
-  void build(int id, int lo, int hi, const vector<int> &a) {
+  void build(int id, int lo, int hi, const vector<int> &values) {
     if (lo == hi) {
-      seg[id].val = a[lo];
+      seg[id].val = values[lo];
       return;
     }
     int mid = (lo + hi) / 2;
-    build(id * 2, lo, mid, a);
-    build(id * 2 + 1, mid + 1, hi, a);
+    build(id * 2, lo, mid, values);
+    build(id * 2 + 1, mid + 1, hi, values);
     pull(id);
   }
   void pull(int id) { seg[id].val = max(seg[id * 2].val, seg[id * 2 + 1].val); }
@@ -62,10 +63,10 @@ struct LazySegTree {
       seg[id].lazyAdd = 0;
     }
   }
-  void update(int id, int lo, int hi, int l, int r, int val, bool assign) {
+  void update(int id, int lo, int hi, int l, int r, int val, bool isAssignment) {
     if (r < lo || hi < l) return;
     if (l <= lo && hi <= r) {
-      if (assign)
+      if (isAssignment)
         applySet(id, val);
       else
         applyAdd(id, val);
@@ -73,8 +74,8 @@ struct LazySegTree {
     }
     push(id);
     int mid = (lo + hi) / 2;
-    update(id * 2, lo, mid, l, r, val, assign);
-    update(id * 2 + 1, mid + 1, hi, l, r, val, assign);
+    update(id * 2, lo, mid, l, r, val, isAssignment);
+    update(id * 2 + 1, mid + 1, hi, l, r, val, isAssignment);
     pull(id);
   }
   void set(int l, int r, int val) {

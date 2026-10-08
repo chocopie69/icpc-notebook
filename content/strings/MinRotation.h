@@ -2,26 +2,27 @@
  * Author: Stjepan Glavina
  * License: Unlicense
  * Source: https://github.com/stjepang/snippets/blob/master/min_rotation.cpp
- * Description: Finds the lexicographically smallest rotation of a string.
+ * Description: Returns the 0-based start of a lexicographically smallest cyclic rotation, not the rotated
+ * string. Periodic input may have equivalent starts; empty input returns 0.
  * Time: O(N)
- * Usage:
- *  rotate(v.begin(), v.begin()+minRotation(v), v.end());
+ * Usage: string s="baca"; int start=minRotation(s);
+ * rotate(s.begin(),s.begin()+start,s.end()); // "abac"
  * Status: Stress-tested
  */
 #pragma once
 int minRotation(string s) {
-  int a = 0, N = sz(s);
+  int bestStart = 0, n = sz(s);
   s += s;
-  for (int b = 0; b < (N); ++b)
-    for (int k = 0; k < (N); ++k) {
-      if (a + k == b || s[a + k] < s[b + k]) {
-        b += max(0, k - 1);
+  for (int candidate = 0; candidate < (n); ++candidate)
+    for (int offset = 0; offset < (n); ++offset) {
+      if (bestStart + offset == candidate || s[bestStart + offset] < s[candidate + offset]) {
+        candidate += max(0, offset - 1);
         break;
       }
-      if (s[a + k] > s[b + k]) {
-        a = b;
+      if (s[bestStart + offset] > s[candidate + offset]) {
+        bestStart = candidate;
         break;
       }
     }
-  return a;
+  return bestStart;
 }

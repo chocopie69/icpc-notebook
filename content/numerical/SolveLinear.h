@@ -4,48 +4,53 @@
  * License: CC0
  * Description: Solves $A * x = b$. If there are multiple solutions, an arbitrary one is returned.
  *  Returns rank, or -1 if no solutions. Data in $A$ and $b$ is lost.
+ * For n equations in m unknowns, resize solution to m before calling: its size tells the solver
+ * the number of columns. Rank m means unique solution; 0<=rank<m means free variables, chosen as
+ * zero. Read solution only if rank!=-1. A and b are modified; copy them if needed.
  * Time: O(n^2 m)
  * Status: tested on kattis:equationsolver, and bruteforce-tested mod 3 and 5 for n,m <= 3
+ * Usage: vector<vd> a={{1,1},{1,-1}}; vd b={3,1}, x(2);
+ * int rank=solveLinear(a,b,x); // rank=2, x={2,1}
  */
 #pragma once
 
 typedef vector<double> vd;
 const double eps = 1e-12;
-int solveLinear(vector<vd> &A, vd &b, vd &x) {
-  int n = sz(A), m = sz(x), rank = 0, br, bc;
-  if (n) assert(sz(A[0]) == m);
-  vector<int> col(m);
-  iota(all(col), 0);
+int solveLinear(vector<vd> &matrix, vd &rhs, vd &solution) {
+  int n = sz(matrix), m = sz(solution), rank = 0, pivotRow, pivotCol;
+  if (n) assert(sz(matrix[0]) == m);
+  vector<int> colOrder(m);
+  iota(all(colOrder), 0);
 
   for (int i = 0; i < (n); ++i) {
-    double v, bv = 0;
+    double magnitude, pivotValue = 0;
     for (int r = i; r < (n); ++r)
       for (int c = i; c < (m); ++c)
-        if ((v = fabs(A[r][c])) > bv)
-          br = r, bc = c, bv = v;
-    if (bv <= eps) {
+        if ((magnitude = fabs(matrix[r][c])) > pivotValue)
+          pivotRow = r, pivotCol = c, pivotValue = magnitude;
+    if (pivotValue <= eps) {
       for (int j = i; j < (n); ++j)
-        if (fabs(b[j]) > eps) return -1;
+        if (fabs(rhs[j]) > eps) return -1;
       break;
     }
-    swap(A[i], A[br]);
-    swap(b[i], b[br]);
-    swap(col[i], col[bc]);
-    for (int j = 0; j < (n); ++j) swap(A[j][i], A[j][bc]);
-    bv = 1 / A[i][i];
+    swap(matrix[i], matrix[pivotRow]);
+    swap(rhs[i], rhs[pivotRow]);
+    swap(colOrder[i], colOrder[pivotCol]);
+    for (int j = 0; j < (n); ++j) swap(matrix[j][i], matrix[j][pivotCol]);
+    pivotValue = 1 / matrix[i][i];
     for (int j = i + 1; j < (n); ++j) {
-      double fac = A[j][i] * bv;
-      b[j] -= fac * b[i];
-      for (int k = i + 1; k < (m); ++k) A[j][k] -= fac * A[i][k];
+      double factor = matrix[j][i] * pivotValue;
+      rhs[j] -= factor * rhs[i];
+      for (int k = i + 1; k < (m); ++k) matrix[j][k] -= factor * matrix[i][k];
     }
     rank++;
   }
 
-  x.assign(m, 0);
+  solution.assign(m, 0);
   for (int i = rank; i--;) {
-    b[i] /= A[i][i];
-    x[col[i]] = b[i];
-    for (int j = 0; j < (i); ++j) b[j] -= A[j][i] * b[i];
+    rhs[i] /= matrix[i][i];
+    solution[colOrder[i]] = rhs[i];
+    for (int j = 0; j < (i); ++j) rhs[j] -= matrix[j][i] * rhs[i];
   }
   return rank; // (multiple solutions if rank < m)
 }

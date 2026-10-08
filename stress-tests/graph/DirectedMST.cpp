@@ -132,7 +132,7 @@ int main() {
 				for(auto &x: par) cout << x << ' ';
 				cout << endl;
 				for(auto &e: edges) {
-					cout << e.a << ' ' << e.b << ' ' << e.w << endl;
+					cout << e.from << ' ' << e.to << ' ' << e.weight << endl;
 				}
 			}
 			ll sum = 0;

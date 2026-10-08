@@ -12,48 +12,49 @@
 #pragma once
 
 #include "../number-theory/ModPow.h"
-int matInv(vector<vector<ll>> &A) {
-  int n = sz(A);
-  vector<int> col(n);
-  vector<vector<ll>> tmp(n, vector<ll>(n));
-  for (int i = 0; i < (n); ++i) tmp[i][i] = 1, col[i] = i;
+int matInv(vector<vector<ll>> &matrix) {
+  int n = sz(matrix);
+  vector<int> colOrder(n);
+  vector<vector<ll>> inverse(n, vector<ll>(n));
+  for (int i = 0; i < (n); ++i) inverse[i][i] = 1, colOrder[i] = i;
 
   for (int i = 0; i < (n); ++i) {
-    int r = i, c = i;
+    int pivotRow = i, pivotCol = i;
     for (int j = i; j < (n); ++j)
       for (int k = i; k < (n); ++k)
-        if (A[j][k]) {
-          r = j;
-          c = k;
+        if (matrix[j][k]) {
+          pivotRow = j;
+          pivotCol = k;
           goto found;
         }
     return i;
   found:
-    A[i].swap(A[r]);
-    tmp[i].swap(tmp[r]);
+    matrix[i].swap(matrix[pivotRow]);
+    inverse[i].swap(inverse[pivotRow]);
     for (int j = 0; j < (n); ++j)
-      swap(A[j][i], A[j][c]), swap(tmp[j][i], tmp[j][c]);
-    swap(col[i], col[c]);
-    ll v = modpow(A[i][i], mod - 2);
+      swap(matrix[j][i], matrix[j][pivotCol]), swap(inverse[j][i], inverse[j][pivotCol]);
+    swap(colOrder[i], colOrder[pivotCol]);
+    ll pivotInverse = modpow(matrix[i][i], mod - 2);
     for (int j = i + 1; j < (n); ++j) {
-      ll f = A[j][i] * v % mod;
-      A[j][i] = 0;
-      for (int k = i + 1; k < (n); ++k) A[j][k] = (A[j][k] - f * A[i][k]) % mod;
-      for (int k = 0; k < (n); ++k) tmp[j][k] = (tmp[j][k] - f * tmp[i][k]) % mod;
+      ll factor = matrix[j][i] * pivotInverse % mod;
+      matrix[j][i] = 0;
+      for (int k = i + 1; k < (n); ++k) matrix[j][k] = (matrix[j][k] - factor * matrix[i][k]) % mod;
+      for (int k = 0; k < (n); ++k) inverse[j][k] = (inverse[j][k] - factor * inverse[i][k]) % mod;
     }
-    for (int j = i + 1; j < (n); ++j) A[i][j] = A[i][j] * v % mod;
-    for (int j = 0; j < (n); ++j) tmp[i][j] = tmp[i][j] * v % mod;
-    A[i][i] = 1;
+    for (int j = i + 1; j < (n); ++j) matrix[i][j] = matrix[i][j] * pivotInverse % mod;
+    for (int j = 0; j < (n); ++j) inverse[i][j] = inverse[i][j] * pivotInverse % mod;
+    matrix[i][i] = 1;
   }
 
   for (int i = n - 1; i > 0; --i)
     for (int j = 0; j < (i); ++j) {
-      ll v = A[j][i];
-      for (int k = 0; k < (n); ++k) tmp[j][k] = (tmp[j][k] - v * tmp[i][k]) % mod;
+      ll pivotInverse = matrix[j][i];
+      for (int k = 0; k < (n); ++k)
+        inverse[j][k] = (inverse[j][k] - pivotInverse * inverse[i][k]) % mod;
     }
 
   for (int i = 0; i < (n); ++i)
     for (int j = 0; j < (n); ++j)
-      A[col[i]][col[j]] = tmp[i][j] % mod + (tmp[i][j] < 0) * mod;
+      matrix[colOrder[i]][colOrder[j]] = inverse[i][j] % mod + (inverse[i][j] < 0) * mod;
   return n;
 }

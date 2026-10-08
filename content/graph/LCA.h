@@ -1,44 +1,64 @@
 /**
- * Author: chilli, pajenegod
- * Date: 2020-02-20
- * License: CC0
- * Source: Folklore
- * Description: Binary-lifting LCA using up[u][k] and depth h[u].
- * adj is an undirected tree or directed parent-to-child tree. Default root is 1;
- * pass root=0 for a 0-based tree. time[u] is the DFS entry order for virtual trees.
- * distance returns the number of edges, not the sum of edge weights.
- * Usage: LCA tree(adj); int w = tree.lca(u,v); int p = tree.goUp(u,steps);
+ * Author: Personal Code::Blocks abbreviation, adapted
+ * Description: Binary lifting and LCA in one snippet: up[u][k] is the ancestor $2^k$ steps above u.
+ * Build on a connected tree; root defaults to 1 and is its own parent. goUp needs
+ * 0<=steps<=h[u]. tin is single-entry DFS order. distance counts edges; weightedDistance sums
+ * weights using ll root distances. Rebuild after edge changes; DFS is recursive.
+ * Use this for kth ancestors or jump aggregates; Euler-tour + RMQ gives O(1) LCA queries.
+ * Usage: LCA tree(adj); // vector<vector<int>>, unit edge weights
+ * int common=tree.lca(u,v);
+ * int ancestor=tree.goUp(u,2); // requires tree.h[u]>=2
+ * int edges=tree.distance(u,v);
+ * vector<vector<pll>> weightedAdj(n+1);
+ * // Each pair is {neighbor,weight}; add both directions for an undirected tree.
+ * LCA weighted(weightedAdj);
+ * ll length=weighted.weightedDistance(u,v);
  * Time: $O(N \log N)$ construction and memory; $O(\log N)$ per query.
  */
 #pragma once
-#include "BinaryLifting.h"
 struct LCA {
-  int LOG = 1;
-  int timer = 0;
+  int LOG, timer = 0;
+  vector<vector<pll>> adj;
   vector<vector<int>> up;
-  vector<int> h, time;
-  LCA(const vector<vector<int>> &adj, int root = 1) {
-    int n = sz(adj);
-    while ((1LL << LOG) <= n) LOG++;
-    up.assign(n, vector<int>(LOG));
-    h.assign(n, 0);
-    time.assign(n, -1);
-    if (root >= 0 && root < n) dfs(adj, root, root);
+  vector<int> h, tin;
+  vector<ll> rootDist;
+  LCA(int n)
+      : LOG(__lg(max(1, n)) + 1), adj(n), up(n, vector<int>(LOG)), h(n), tin(n), rootDist(n) {}
+  LCA(const vector<vector<int>> &graph, int root = 1) : LCA(sz(graph)) {
+    for (int u = 0; u < sz(graph); u++)
+      for (int v : graph[u]) adj[u].push_back({v, 1});
+    dfs(root, root);
   }
-  void dfs(const vector<vector<int>> &adj, int u, int parent) {
-    time[u] = timer++;
+  LCA(const vector<vector<pll>> &graph, int root = 1) : LCA(sz(graph)) {
+    adj = graph;
+    dfs(root, root);
+  }
+  void dfs(int u, int parent) {
+    tin[u] = timer++;
     up[u][0] = parent;
     for (int k = 1; k < LOG; k++) up[u][k] = up[up[u][k - 1]][k - 1];
-    for (int v : adj[u]) {
+    for (auto [v, weight] : adj[u]) {
       if (v == parent) continue;
       h[v] = h[u] + 1;
-      dfs(adj, v, u);
+      rootDist[v] = rootDist[u] + weight;
+      dfs(v, u);
     }
   }
-  int goUp(int u, int steps) const { return ::goUp(up, u, steps); }
-  int lca(int u, int v) const { return ::lca(up, h, u, v); }
-  int distance(int u, int v) const {
-    int w = lca(u, v);
-    return h[u] + h[v] - 2 * h[w];
+  int goUp(int u, int steps) const {
+    for (int k = 0; k < LOG; k++)
+      if (steps >> k & 1) u = up[u][k];
+    return u;
+  }
+  int lca(int u, int v) const {
+    if (h[u] < h[v]) swap(u, v);
+    u = goUp(u, h[u] - h[v]);
+    if (u == v) return u;
+    for (int k = LOG - 1; k >= 0; k--)
+      if (up[u][k] != up[v][k]) u = up[u][k], v = up[v][k];
+    return up[u][0];
+  }
+  int distance(int u, int v) const { return h[u] + h[v] - 2 * h[lca(u, v)]; }
+  ll weightedDistance(int u, int v) const {
+    return rootDist[u] + rootDist[v] - 2 * rootDist[lca(u, v)];
   }
 };

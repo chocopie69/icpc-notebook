@@ -3,10 +3,11 @@
  * Date: 2017-10-31
  * License: CC0
  * Source: folklore
- * Description: Recursive max segment tree. Positions are 1-based; query(l,r) includes both endpoints.
- * update(pos,val) assigns a[pos]. Initially all positions equal def.
- * To change the aggregate, edit T, unit and merge; unit must be its identity.
- * Usage: SegTree seg(n); seg.update(3, 5); int ans = seg.query(1, 3);
+ * Description: Point assignment and range maximum. Positions are 1-based; query(l,r) is inclusive. Initially
+ * every position equals initialValue. To change the aggregate, edit T, merge and its identity
+ * unit; use a wider T if needed.
+ * Usage: SegTree seg(5,0); seg.update(3,7);
+ * int best=seg.query(2,4); // 7; positions 2,3,4
  * Time: $O(\log N)$ per operation; $O(N)$ memory.
  */
 #pragma once
@@ -15,8 +16,8 @@ struct SegTree {
   static constexpr T unit = INT_MIN;
   int n;
   vector<T> seg;
-  SegTree(int n = 0, T def = unit) : n(n), seg(4 * n + 4, unit) {
-    if (n > 0) build(1, 1, n, def);
+  SegTree(int n = 0, T initialValue = unit) : n(n), seg(4 * n + 4, unit) {
+    if (n > 0) build(1, 1, n, initialValue);
   }
   T merge(T a, T b) const { return max(a, b); }
   void build(int id, int lo, int hi, T val) {

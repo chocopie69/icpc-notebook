@@ -1,24 +1,25 @@
 /**
  * Author: chilli
  * License: CC0
- * Description: z[i] is the common-prefix length of s and the suffix starting at i.
- * Positions are 0-based; z[0] = 0. Example: abacaba gives 0,0,1,0,3,0,1.
- * Usage: vector<int> z = zFunction(s);
+ * Description: z[i] is the common-prefix length of the string and its suffix starting at i; z[0]=0. For
+ * matching use pattern+separator+text, with a separator absent from both, and look for
+ * z[i]>=pattern.size().
+ * Usage: auto z=zFunction("abacaba"); // {0,0,1,0,3,0,1}
  * Time: $O(N)$ time and memory.
  */
 #pragma once
-vector<int> zFunction(const string &s) {
-  int n = sz(s);
+vector<int> zFunction(const string &text) {
+  int n = sz(text);
   vector<int> z(n, 0);
-  int l = 0;
-  int r = -1;
+  int left = 0;
+  int right = -1;
   for (int i = 1; i < n; i++) {
     // [l,r] is the rightmost segment known to match a prefix of s.
-    if (i <= r) z[i] = min(r - i + 1, z[i - l]);
-    while (i + z[i] < n && s[z[i]] == s[i + z[i]]) z[i]++;
-    if (i + z[i] - 1 > r) {
-      l = i;
-      r = i + z[i] - 1;
+    if (i <= right) z[i] = min(right - i + 1, z[i - left]);
+    while (i + z[i] < n && text[z[i]] == text[i + z[i]]) z[i]++;
+    if (i + z[i] - 1 > right) {
+      left = i;
+      right = i + z[i] - 1;
     }
   }
   return z;

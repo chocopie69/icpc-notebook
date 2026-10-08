@@ -3,17 +3,17 @@
  * Date: 2009-03-21
  * License: CC0
  * Source:
- * Description:\\
-\begin{minipage}{75mm}
-Returns the shortest distance between point p and the line segment from point s to e.
-\end{minipage}
-\begin{minipage}{15mm}
-\vspace{-10mm}
-\includegraphics[width=\textwidth]{content/geometry/SegmentDistance}
-\end{minipage}
- * Usage: 
- *  Point<double> a, b(2,2), p(1,1);
- *  bool onSegment = segDist(a,b,p) < 1e-10;
+ * Description: \\
+ * \begin{minipage}{75mm}
+ * Distance to the closed segment, including endpoints; equal endpoints are supported. Use
+ * Point<double> and a tolerance when comparing the distance with zero.
+ * \end{minipage}
+ * \begin{minipage}{15mm}
+ * \vspace{-10mm}
+ * \includegraphics[width=\textwidth]{content/geometry/SegmentDistance}
+ * \end{minipage}
+ * Usage: double distance=segDist(P(0,0),P(2,0),P(3,1));
+ * bool on=distance<1e-9;
  * Status: tested
  */
 #pragma once
@@ -21,8 +21,9 @@ Returns the shortest distance between point p and the line segment from point s 
 #include "Point.h"
 
 typedef Point<double> P;
-double segDist(P s, P e, P p) {
-  if (s == e) return (p - s).dist();
-  auto d = (e - s).dist2(), t = min(d, max(.0, (p - s).dot(e - s)));
-  return ((p - s) * d - (e - s) * t).dist() / d;
+double segDist(P start, P finish, P p) {
+  if (start == finish) return (p - start).dist();
+  auto length2 = (finish - start).dist2(),
+       projection = min(length2, max(.0, (p - start).dot(finish - start)));
+  return ((p - start) * length2 - (finish - start) * projection).dist() / length2;
 }

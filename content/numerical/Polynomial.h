@@ -1,24 +1,31 @@
 /**
  * Author: David Rydh, Per Austrin
  * Date: 2003-03-16
- * Description:
+ * Description: Polynomial coefficients coeff[i] multiply $x^i$ (constant term first).
+ * Evaluation uses Horner's rule. diff changes the polynomial to its derivative. divroot(r)
+ * divides by x-r and discards the remainder, so normally call it only for a known root. Use a
+ * nonempty coefficient vector and trim zero leading coefficients before root finding; do not
+ * differentiate an empty polynomial.
+ * Usage: Poly p{{2,-3,1}}; double value=p(3); // 2
+ * p.diff(); // coefficients {-3,2}
  */
 #pragma once
 struct Poly {
-  vector<double> a;
+  vector<double> coeff;
   double operator()(double x) const {
-    double val = 0;
-    for (int i = sz(a); i--;) (val *= x) += a[i];
-    return val;
+    double value = 0;
+    for (int i = sz(coeff); i--;) (value *= x) += coeff[i];
+    return value;
   }
   void diff() {
-    for (int i = 1; i < (sz(a)); ++i) a[i - 1] = i * a[i];
-    a.pop_back();
+    for (int i = 1; i < (sz(coeff)); ++i) coeff[i - 1] = i * coeff[i];
+    coeff.pop_back();
   }
-  void divroot(double x0) {
-    double b = a.back(), c;
-    a.back() = 0;
-    for (int i = sz(a) - 1; i--;) c = a[i], a[i] = a[i + 1] * x0 + b, b = c;
-    a.pop_back();
+  void divroot(double root) {
+    double carry = coeff.back(), oldCoeff;
+    coeff.back() = 0;
+    for (int i = sz(coeff) - 1; i--;)
+      oldCoeff = coeff[i], coeff[i] = coeff[i + 1] * root + carry, carry = oldCoeff;
+    coeff.pop_back();
   }
 };

@@ -5,13 +5,13 @@
 pair<TreapNode*, TreapNode*> split2(TreapNode* n, int v) {
 	if (!n) return {};
 	if (n->val >= v) {
-		auto pa = split2(n->l, v);
-		n->l = pa.second;
+		auto pa = split2(n->left, v);
+		n->left = pa.second;
 		n->recalc();
 		return {pa.first, n};
 	} else {
-		auto pa = split2(n->r, v);
-		n->r = pa.first;
+		auto pa = split2(n->right, v);
+		n->right = pa.first;
 		n->recalc();
 		return {n, pa.second};
 	}

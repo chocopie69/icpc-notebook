@@ -7,6 +7,7 @@
 import sys
 import getopt
 import subprocess
+import re
 
 
 def escape(input):
@@ -21,13 +22,17 @@ def pathescape(input):
     return input
 
 def codeescape(input):
+    input = re.sub(r'(?<!\\)([%&#$])', lambda match: '\\' + match[0], input)
     input = input.replace('_', r'\_')
-    input = input.replace('\n', '\\\\\n')
     input = input.replace('{', r'\{')
     input = input.replace('}', r'\}')
     input = input.replace('^', r'\ensuremath{\hat{\;}}')
     input = escape(input)
+    input = input.replace('~', r'\textasciitilde{}')
+    # Empty braces keep a following C++ lambda's [] out of \\'s optional argument.
+    input = input.replace('\n', r'\\{}' + '\n')
     return input
+
 
 def ordoescape(input, esc=True):
     if esc:

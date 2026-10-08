@@ -1,23 +1,31 @@
 /**
  * Author: Unknown
- * Date: 2002-09-13
- * Source: predates tinyKACTL
- * Description: Topological sorting. Given is an oriented graph.
- * Output is an ordering of vertices, such that there are edges only from left to right.
- * If there are cycles, the returned list will have size smaller than $n$ -- nodes reachable
- * from cycles will not be returned.
- * Time: $O(|V|+|E|)$
- * Status: stress-tested
+ * Description: DAG skeleton with vertices 1..n: define maxN and read n,m first. The stack pops vertices in
+ * topological order; ans[u] is the 1-based position of u. A detected cycle prints an error and
+ * exits. Clear g and visited between cases.
+ * Usage: // Define maxN and read n,m before the shown main body.
+ * // Reset visited and clear g for another test case.
  */
-#pragma once
-vector<int> topoSort(const vector<vector<int>> &gr) {
-  vector<int> indeg(sz(gr)), q;
-  for (auto &li : gr)
-    for (int x : li) indeg[x]++;
-  for (int i = 0; i < (sz(gr)); ++i)
-    if (indeg[i] == 0) q.push_back(i);
-  for (int j = 0; j < (sz(q)); ++j)
-    for (int x : gr[q[j]])
-      if (--indeg[x] == 0) q.push_back(x);
-  return q;
+int visited[maxN], ans[maxN];
+vector<int> g[maxN];
+stack<int> topo; // reversed order of topo;
+void dfs(int u) {
+  visited[u] = 1;
+  for (auto v : g[u]) {
+    if (visited[v] == 1) {
+      cout << "Error: graph contains a cycle";
+      exit(0);
+    }
+    if (!visited[v]) dfs(v);
+  }
+  topo.push(u);
+  visited[u] = 2;
+}
+int main() {
+  while (m--) {
+    int u, v; cin >> u >> v;
+    g[u].push_back(v);
+  }
+  for (int i = 1; i <= n; ++i)
+    if (!visited[i]) dfs(i);
 }

@@ -8,41 +8,37 @@
  * Status: stress-tested
  */
 #pragma once
-template <class T>
-T edmondsKarp(vector<unordered_map<int, T>> &
-                  graph,
-              int source, int sink) {
+template <class T> T edmondsKarp(vector<unordered_map<int, T>> &graph, int source, int sink) {
   assert(source != sink);
   T flow = 0;
-  vector<int> par(sz(graph)), q = par;
+  vector<int> parent(sz(graph)), queue = parent;
 
   for (;;) {
-    fill(all(par), -1);
-    par[source] = 0;
-    int ptr = 1;
-    q[0] = source;
+    fill(all(parent), -1);
+    parent[source] = 0;
+    int queueSize = 1;
+    queue[0] = source;
 
-    for (int i = 0; i < (ptr); ++i) {
-      int x = q[i];
-      for (auto e : graph[x]) {
-        if (par[e.first] == -1 && e.second > 0) {
-          par[e.first] = x;
-          q[ptr++] = e.first;
+    for (int i = 0; i < (queueSize); ++i) {
+      int u = queue[i];
+      for (auto e : graph[u]) {
+        if (parent[e.first] == -1 && e.second > 0) {
+          parent[e.first] = u;
+          queue[queueSize++] = e.first;
           if (e.first == sink) goto out;
         }
       }
     }
     return flow;
   out:
-    T inc = numeric_limits<T>::max();
-    for (int y = sink; y != source; y = par[y])
-      inc = min(inc, graph[par[y]][y]);
+    T pushed = numeric_limits<T>::max();
+    for (int v = sink; v != source; v = parent[v]) pushed = min(pushed, graph[parent[v]][v]);
 
-    flow += inc;
-    for (int y = sink; y != source; y = par[y]) {
-      int p = par[y];
-      if ((graph[p][y] -= inc) <= 0) graph[p].erase(y);
-      graph[y][p] += inc;
+    flow += pushed;
+    for (int v = sink; v != source; v = parent[v]) {
+      int prev = parent[v];
+      if ((graph[prev][v] -= pushed) <= 0) graph[prev].erase(v);
+      graph[v][prev] += pushed;
     }
   }
 }

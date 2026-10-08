@@ -3,9 +3,12 @@
  * Date: 2009-10-30
  * License: CC0
  * Source: folklore/TopCoder
- * Description: 1-based Fenwick tree. update(pos, delta) adds to a[pos]; query(pos) sums [1, pos].
- * lowerBound requires nonnegative elements; returns 0 for sum <= 0, or n+1 if absent.
- * Usage: Fenwick bit(n); bit.update(3, 5); ll sum = bit.query(3);
+ * Description: 1-based sums: update(pos,delta) adds rather than assigns; query(pos) sums [1,pos] and
+ * query(l,r) is inclusive. lowerBound finds the first prefix reaching a target; it requires
+ * nonnegative elements and returns 0 for target<=0 or n+1 if absent.
+ * Usage: Fenwick bit(5); bit.update(2,3); bit.update(4,7);
+ * ll sum=bit.query(2,4); // 10
+ * int pos=bit.lowerBound(4); // 4
  * Time: $O(\log N)$ per operation; $O(N)$ memory.
  */
 #pragma once
@@ -25,17 +28,17 @@ struct Fenwick {
     if (l > r) return 0;
     return query(r) - query(l - 1);
   }
-  int lowerBound(ll sum) const {
-    if (sum <= 0) return 0;
+  int lowerBound(ll targetSum) const {
+    if (targetSum <= 0) return 0;
     int pos = 0;
     int step = 1;
     while (step <= n / 2) step *= 2;
     // pos is the last prefix whose sum is smaller than the target.
     for (; step > 0; step /= 2) {
       int next = pos + step;
-      if (next <= n && bit[next] < sum) {
+      if (next <= n && bit[next] < targetSum) {
         pos = next;
-        sum -= bit[next];
+        targetSum -= bit[next];
       }
     }
     return pos + 1;

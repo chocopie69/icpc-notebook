@@ -1,25 +1,23 @@
 /**
- * Author: Håkan Terelius
- * Date: 2009-08-26
- * License: CC0
- * Source: http://en.wikipedia.org/wiki/Sieve_of_Eratosthenes
- * Description: Prime sieve for generating all primes up to a certain limit. isprime$[i]$ is true iff $i$ is a prime.
- * Time: lim=100'000'000 $\approx$ 0.8 s. Runs 30\% faster if only odd indices are stored.
- * Status: Tested
+ * Author: Personal Code::Blocks abbreviation, adapted
+ * Description: Generates primes <=n; isPrime[x] tells whether x is prime. Indices 0 and 1 are
+ * not prime. Use LinearSieve instead when you also need smallest prime factors.
+ * Usage: PrimeSieve sieve(20);
+ * bool prime=sieve.isPrime[17]; // true
+ * for (int p : sieve.primes) cout << p << ' ';
+ * Time: $O(N \log\log N)$ time; $O(N)$ memory.
  */
 #pragma once
-
-const int MAX_PR = 5'000'000;
-bitset<MAX_PR> isprime;
-vector<int> eratosthenesSieve(int lim) {
-  isprime.set();
-  isprime[0] = isprime[1] = 0;
-  for (int i = 4; i < lim; i += 2) isprime[i] = 0;
-  for (int i = 3; i * i < lim; i += 2)
-    if (isprime[i])
-      for (int j = i * i; j < lim; j += i * 2) isprime[j] = 0;
-  vector<int> pr;
-  for (int i = 2; i < (lim); ++i)
-    if (isprime[i]) pr.push_back(i);
-  return pr;
-}
+struct PrimeSieve {
+  vector<bool> isPrime;
+  vector<int> primes;
+  PrimeSieve(int n) : isPrime(n + 1, true) {
+    isPrime[0] = false;
+    if (n >= 1) isPrime[1] = false;
+    for (int i = 2; 1LL * i * i <= n; i++)
+      if (isPrime[i])
+        for (ll j = 1LL * i * i; j <= n; j += i) isPrime[j] = false;
+    for (int i = 2; i <= n; i++)
+      if (isPrime[i]) primes.push_back(i);
+  }
+};

@@ -3,11 +3,13 @@
  * Date: 2015-02-06
  * License: CC0
  * Source: Folklore
- * Description: Ancestor table up[u][k] stores the ancestor of u after $2^k$ steps.
- * parent[root] must equal root; parent and depth must use the same vertex indices.
- * Supports either 0-based vectors or 1-based vectors with index 0 reserved.
- * goUp requires 0 <= steps <= depth[u].
- * Usage: auto up = buildAncestorTable(parent); int p = goUp(up,u,3); int w = lca(up,h,u,v);
+ * Description: up[u][k] stores the ancestor $2^k$ steps above u. Build parent and depth h first;
+ * parent[root]=root. Supports 0-based or 1-based vectors with index 0 reserved. goUp requires
+ * 0<=steps<=h[u]. Add another table for aggregates along jumps. This is the binary-lifting
+ * approach to LCA; see LCA.h for DFS setup and LCAEuler.h for the Euler-tour + RMQ alternative.
+ * Usage: auto up=buildAncestorTable(parent);
+ * int ancestor=goUp(up,u,2); // requires h[u]>=2
+ * int common=lca(up,h,u,v);
  * Time: $O(N \log N)$ construction and memory; $O(\log N)$ per query.
  */
 #pragma once

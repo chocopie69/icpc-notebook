@@ -18,7 +18,6 @@ Graph theory
 	MST: Prim's algorithm
 	Bellman-Ford
 	Konig's theorem and vertex cover
-	Min-cost max flow
 	Lovasz toggle
 	Matrix tree theorem
 	Maximal matching, general graphs
@@ -26,9 +25,6 @@ Graph theory
 	Hall's marriage theorem
 	Graphical sequences
 	Euler cycles
-	Flow networks
-	* Augmenting paths
-	* Edmonds-Karp
 	Bipartite matching
 	Min. path cover
 	Topological sorting

@@ -49,10 +49,10 @@ int main() {
 
 		// Conservation of flow for PushRelabel
 		vector<ll> flows(n);
-		rep(i,0,n) for(auto &e: pr.g[i]) if (e.f > 0) {
-			assert(e.c >= 0);
-			flows[i] += e.f;
-			flows[e.dest] -= e.f;
+		rep(i,0,n) for(auto &e: pr.adj[i]) if (e.flow > 0) {
+			assert(e.cap >= 0);
+			flows[i] += e.flow;
+			flows[e.to] -= e.flow;
 		}
 		assert(flow == flows[s]);
 		assert(flow == -flows[t]);
@@ -84,14 +84,14 @@ int main() {
 		ll acrossCut = 0;
 		assert(pr.leftOfMinCut(s));
 		assert(!pr.leftOfMinCut(t));
-		rep(i,0,n) for(auto &e: pr.g[i]) {
-			if (pr.leftOfMinCut(i) && !pr.leftOfMinCut(e.dest)) {
-				assert(e.f >= 0);
-				assert(e.c == 0);
-				acrossCut += e.f;
+		rep(i,0,n) for(auto &e: pr.adj[i]) {
+			if (pr.leftOfMinCut(i) && !pr.leftOfMinCut(e.to)) {
+				assert(e.flow >= 0);
+				assert(e.cap == 0);
+				acrossCut += e.flow;
 			}
-			if (!pr.leftOfMinCut(i) && pr.leftOfMinCut(e.dest)) {
-				assert(e.f <= 0);
+			if (!pr.leftOfMinCut(i) && pr.leftOfMinCut(e.to)) {
+				assert(e.flow <= 0);
 			}
 		}
 

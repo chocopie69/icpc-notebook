@@ -2,37 +2,37 @@
  * Author: Adam Soltan
  * Date: 2026-01-13
  * License: CC0
- * Description: Fast bipartite matching algorithm. Graph $g$ should be a list
- * of neighbors of the left partition, and $r$ should be a vector full of
- * $-1$'s of the same size as the right partition. Returns the size of
- * the matching. $r[i]$ will be the match for vertex $i$ on the right side,
- * or $-1$ if it's not matched.
+ * Description: Maximum bipartite matching. adj lists right neighbors for each left vertex; the two sides use
+ * separate 0-based indices. Initialize matchRight with rightSize entries of -1. Returns matching
+ * size; matchRight[v] is its matched left vertex, or -1.
  * Time: O(E \sqrt{V})
  * Status: stress-tested by MinimumVertexCover and tested on Library Checker
+ * Usage: vector<vector<int>> adj={{0,1},{1}};
+ * vector<int> matchRight(2,-1);
+ * int size=hopcroftKarp(adj,matchRight); // 2
  */
 #pragma once
-int hopcroftKarp(vector<vector<int>> &g, vector<int> &r) {
-  int n = sz(g), res = 0;
-  vector<int> l(n, -1), q(n), d(n);
-  auto dfs = [&](auto f, int u) -> bool {
-    int t = exchange(d[u], 0) + 1;
-    for (int v : g[u])
-      if (r[v] == -1 || (d[r[v]] == t && f(f, r[v])))
-        return l[u] = v, r[v] = u, 1;
+int hopcroftKarp(vector<vector<int>> &adj, vector<int> &matchRight) {
+  int n = sz(adj), matchingSize = 0;
+  vector<int> matchLeft(n, -1), queue(n), dist(n);
+  auto dfs = [&](auto self, int u) -> bool {
+    int nextDist = exchange(dist[u], 0) + 1;
+    for (int v : adj[u])
+      if (matchRight[v] == -1 || (dist[matchRight[v]] == nextDist && self(self, matchRight[v])))
+        return matchLeft[u] = v, matchRight[v] = u, 1;
     return 0;
   };
-  for (int t = 0, f = 0;; t = f = 0, d.assign(n, 0)) {
+  for (int queueSize = 0, foundPath = 0;; queueSize = foundPath = 0, dist.assign(n, 0)) {
     for (int i = 0; i < (n); ++i)
-      if (l[i] == -1) q[t++] = i, d[i] = 1;
-    for (int i = 0; i < (t); ++i)
-      for (int v : g[q[i]]) {
-        if (r[v] == -1)
-          f = 1;
-        else if (!d[r[v]])
-          d[r[v]] = d[q[i]] + 1, q[t++] = r[v];
-      }
-    if (!f) return res;
+      if (matchLeft[i] == -1) queue[queueSize++] = i, dist[i] = 1;
+    for (int i = 0; i < (queueSize); ++i)
+      for (int v : adj[queue[i]])
+        if (matchRight[v] == -1)
+          foundPath = 1;
+        else if (!dist[matchRight[v]])
+          dist[matchRight[v]] = dist[queue[i]] + 1, queue[queueSize++] = matchRight[v];
+    if (!foundPath) return matchingSize;
     for (int i = 0; i < (n); ++i)
-      if (l[i] == -1) res += dfs(dfs, i);
+      if (matchLeft[i] == -1) matchingSize += dfs(dfs, i);
   }
 }

@@ -12,8 +12,7 @@
 static int C; // initialized below
 // Arithmetic mod two primes and 2^32 simultaneously.
 // "typedef uint64_t HashValue;" instead if Thue-Morse does not apply.
-template <int M, class B>
-struct ModHash {
+template <int M, class B> struct ModHash {
   int x;
   B b;
   ModHash(int x = 0) : x(x), b(x) {}
@@ -33,32 +32,29 @@ struct ModHash {
 };
 typedef ModHash<1000000007, ModHash<1000000009, unsigned>> HashValue;
 struct RollingHash {
-  vector<HashValue> ha, pw;
-  RollingHash(string &str) : ha(sz(str) + 1), pw(ha) {
-    pw[0] = 1;
-    for (int i = 0; i < (sz(str)); ++i)
-      ha[i + 1] = ha[i] * C + str[i],
-             pw[i + 1] = pw[i] * C;
+  vector<HashValue> prefixHash, power;
+  RollingHash(string &text) : prefixHash(sz(text) + 1), power(prefixHash) {
+    power[0] = 1;
+    for (int i = 0; i < (sz(text)); ++i)
+      prefixHash[i + 1] = prefixHash[i] * C + text[i], power[i + 1] = power[i] * C;
   }
-  HashValue hashInterval(int a, int b) { // hash [a, b)
-    return ha[b] - ha[a] * pw[b - a];
+  HashValue hashInterval(int l, int r) { // hash [l, r)
+    return prefixHash[r] - prefixHash[l] * power[r - l];
   }
 };
-vector<HashValue> getHashes(string &str, int length) {
-  if (sz(str) < length) return {};
-  HashValue h = 0, pw = 1;
-  for (int i = 0; i < (length); ++i)
-    h = h * C + str[i], pw = pw * C;
-  vector<HashValue> ret = {h};
-  for (int i = length; i < (sz(str)); ++i) {
-    ret.push_back(h = h * C + str[i] - pw * str[i - length]);
-  }
-  return ret;
+vector<HashValue> getHashes(string &text, int length) {
+  if (sz(text) < length) return {};
+  HashValue hash = 0, power = 1;
+  for (int i = 0; i < (length); ++i) hash = hash * C + text[i], power = power * C;
+  vector<HashValue> hashes = {hash};
+  for (int i = length; i < (sz(text)); ++i)
+    hashes.push_back(hash = hash * C + text[i] - power * text[i - length]);
+  return hashes;
 }
 HashValue hashString(string &s) {
-  HashValue h{};
-  for (char c : s) h = h * C + c;
-  return h;
+  HashValue hash{};
+  for (char c : s) hash = hash * C + c;
+  return hash;
 }
 #include <sys/time.h>
 int main() {

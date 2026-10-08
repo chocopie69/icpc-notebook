@@ -6,7 +6,11 @@
  * Description: Determine whether a point t lies inside a convex hull (CCW
  * order, with no collinear points). Returns true if point lies within
  * the hull. If strict is true, points on the boundary aren't included.
- * Usage:
+ * The hull must be nonempty, convex, and in boundary order, without interior collinear vertices;
+ * convexHull produces suitable input. Use for many containment queries rather than scanning
+ * every edge. strict=false includes edges and vertices.
+ * Usage: auto hull=convexHull(points);
+ * bool inside=inHull(hull,Point<ll>(2,3),false);
  * Status: stress-tested
  * Time: O(\log N)
  */
@@ -17,15 +21,16 @@
 #include "OnSegment.h"
 
 typedef Point<ll> P;
-bool inHull(const vector<P> &l, P p, bool strict = true) {
-  int a = 1, b = sz(l) - 1, r = !strict;
-  if (sz(l) < 3) return r && onSegment(l[0], l.back(), p);
-  if (sideOf(l[0], l[a], l[b]) > 0) swap(a, b);
-  if (sideOf(l[0], l[a], p) >= r || sideOf(l[0], l[b], p) <= -r)
+bool inHull(const vector<P> &hull, P p, bool strict = true) {
+  int lo = 1, hi = sz(hull) - 1, boundaryAllowed = !strict;
+  if (sz(hull) < 3) return boundaryAllowed && onSegment(hull[0], hull.back(), p);
+  if (sideOf(hull[0], hull[lo], hull[hi]) > 0) swap(lo, hi);
+  if (sideOf(hull[0], hull[lo], p) >= boundaryAllowed ||
+      sideOf(hull[0], hull[hi], p) <= -boundaryAllowed)
     return false;
-  while (abs(a - b) > 1) {
-    int c = (a + b) / 2;
-    (sideOf(l[0], l[c], p) > 0 ? b : a) = c;
+  while (abs(lo - hi) > 1) {
+    int mid = (lo + hi) / 2;
+    (sideOf(hull[0], hull[mid], p) > 0 ? hi : lo) = mid;
   }
-  return sgn(l[a].cross(l[b], p)) < r;
+  return sgn(hull[lo].cross(hull[hi], p)) < boundaryAllowed;
 }

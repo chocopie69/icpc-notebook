@@ -5,8 +5,12 @@
  * Source: https://github.com/spaghetti-source/algorithm/blob/master/geometry/_geom.cc#L744
  * Description: Returns the area of the intersection of a circle with a
  * ccw polygon.
+ * The polygon may be concave, but must be simple with nonzero-length edges. It is copied and
+ * left unchanged. The area is signed: counterclockwise input gives positive area; take abs if
+ * needed. Radius must be positive.
  * Time: O(n)
  * Status: Tested on GNYR 2019 Gerrymandering, stress-tested
+ * Usage: double area=abs(circlePoly(P(0,0),1,polygon));
  */
 #pragma once
 
@@ -14,20 +18,23 @@
 
 typedef Point<double> P;
 #define arg(p, q) atan2(p.cross(q), p.dot(q))
-double circlePoly(P c, double r, vector<P> ps) {
-  auto tri = [&](P p, P q) {
-    auto r2 = r * r / 2;
-    P d = q - p;
-    auto a = d.dot(p) / d.dist2(), b = (p.dist2() - r * r) / d.dist2();
-    auto det = a * a - b;
-    if (det <= 0) return arg(p, q) * r2;
-    auto s = max(0., -a - sqrt(det)), t = min(1., -a + sqrt(det));
-    if (t < 0 || 1 <= s) return arg(p, q) * r2;
-    P u = p + d * s, v = q + d * (t - 1);
-    return arg(p, u) * r2 + u.cross(v) / 2 + arg(v, q) * r2;
+double circlePoly(P center, double radius, vector<P> polygon) {
+  auto triangleArea = [&](P p, P q) {
+    auto halfRadius2 = radius * radius / 2;
+    P direction = q - p;
+    auto linearTerm = direction.dot(p) / direction.dist2(),
+         constantTerm = (p.dist2() - radius * radius) / direction.dist2();
+    auto discriminant = linearTerm * linearTerm - constantTerm;
+    if (discriminant <= 0) return arg(p, q) * halfRadius2;
+    auto enter = max(0., -linearTerm - sqrt(discriminant)),
+         exit = min(1., -linearTerm + sqrt(discriminant));
+    if (exit < 0 || 1 <= enter) return arg(p, q) * halfRadius2;
+    P intersection1 = p + direction * enter, intersection2 = q + direction * (exit - 1);
+    return arg(p, intersection1) * halfRadius2 + intersection1.cross(intersection2) / 2 +
+           arg(intersection2, q) * halfRadius2;
   };
-  auto sum = 0.0;
-  for (int i = 0; i < (sz(ps)); ++i)
-    sum += tri(ps[i] - c, ps[(i + 1) % sz(ps)] - c);
-  return sum;
+  auto area = 0.0;
+  for (int i = 0; i < (sz(polygon)); ++i)
+    area += triangleArea(polygon[i] - center, polygon[(i + 1) % sz(polygon)] - center);
+  return area;
 }

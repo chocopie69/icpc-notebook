@@ -3,8 +3,11 @@
  * Date: 2009-09-28
  * License: CC0
  * Source: folklore
- * Description: Operators for modular arithmetic. You need to set {\tt mod} to
- * some number first and then you can use the structure.
+ * Description: Set global mod first; residues are normalized to [0,mod) and read via .value. Division asserts
+ * unless its divisor is coprime with mod. Exponents must be nonnegative; multiplication must fit
+ * ll before reduction.
+ * Usage: Mod a=5, b=3; ll residue=(a*b+a).value;
+ * Mod power=a^10; Mod quotient=a/b; // gcd(b,mod)=1
  */
 #pragma once
 
@@ -12,22 +15,22 @@
 
 const ll mod = 17; // change to something else
 struct Mod {
-  ll x;
-  Mod(ll y) : Mod(y % mod + mod, 0) {}
-  Mod(ll y, int) : x(y < mod ? y : y - mod) {}
-  Mod operator+(Mod b) { return {x + b.x, 0}; }
-  Mod operator-(Mod b) { return {x - b.x + mod, 0}; }
-  Mod operator*(Mod b) { return {x * b.x % mod, 0}; }
-  Mod operator/(Mod b) { return *this * invert(b); }
-  Mod invert(Mod a) {
-    ll x, y, g = euclid(a.x, mod, x, y);
-    assert(g == 1);
-    return x;
+  ll value;
+  Mod(ll normalized) : Mod(normalized % mod + mod, 0) {}
+  Mod(ll normalized, int) : value(normalized < mod ? normalized : normalized - mod) {}
+  Mod operator+(Mod other) { return {value + other.value, 0}; }
+  Mod operator-(Mod other) { return {value - other.value + mod, 0}; }
+  Mod operator*(Mod other) { return {value * other.value % mod, 0}; }
+  Mod operator/(Mod other) { return *this * invert(other); }
+  Mod invert(Mod operand) {
+    ll inverseCoeff, otherCoeff, gcdValue = euclid(operand.value, mod, inverseCoeff, otherCoeff);
+    assert(gcdValue == 1);
+    return inverseCoeff;
   }
-  Mod operator^(ll e) {
-    if (!e) return 1;
-    Mod r = *this ^ (e / 2);
-    r = r * r;
-    return e & 1 ? *this * r : r;
+  Mod operator^(ll exponent) {
+    if (!exponent) return 1;
+    Mod result = *this ^ (exponent / 2);
+    result = result * result;
+    return exponent & 1 ? *this * result : result;
   }
 };

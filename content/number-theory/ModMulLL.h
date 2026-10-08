@@ -4,6 +4,10 @@
  * License: CC0
  * Source: https://github.com/RamchandraApte/OmniTemplate/blob/master/src/number_theory/modulo.hpp
  * Description: Calculate $a\cdot b\bmod c$ (or $a^b \bmod c$) for $0 \le a, b \le c \le 7.2\cdot 10^{18}$.
+ * Use for large-modulus exponentiation and primality/factorization when ordinary ll
+ * multiplication would overflow. The three-argument modpow takes an explicit modulus. The large
+ * bound assumes an 80-bit long double, typical with GNU on x86-64; double-width long double has
+ * the smaller bound explained in Details. Normalize operands first and use a positive modulus.
  * Time: O(1) for \texttt{modmul}, O(\log b) for \texttt{modpow}
  * Status: stress-tested, proven correct
  * Details:
@@ -13,15 +17,18 @@
  * The proof assumes that long doubles are implemented as x87 80-bit floats; if they
  * are 64-bit, as on e.g. MSVC, the implementation is only valid for
  * $0 \le a, b \le c < 2^{52} \approx 4.5 \cdot 10^{15}$.
+ * Usage: ull product=modmul(1000000000000ULL,
+ *   1000000000000ULL,1000000000000000003ULL);
+ * ull power=modpow(2,100,1000000007);
  */
 #pragma once
-ull modmul(ull a, ull b, ull M) {
-  ll ret = a * b - M * (ull)(1.L / M * a * b);
-  return ret + M * (ret < 0) - M * (ret >= (ll)M);
+ull modmul(ull lhs, ull rhs, ull modulus) {
+  ll remainder = lhs * rhs - modulus * (ull)(1.L / modulus * lhs * rhs);
+  return remainder + modulus * (remainder < 0) - modulus * (remainder >= (ll)modulus);
 }
-ull modpow(ull b, ull e, ull mod) {
-  ull ans = 1;
-  for (; e; b = modmul(b, b, mod), e /= 2)
-    if (e & 1) ans = modmul(ans, b, mod);
-  return ans;
+ull modpow(ull base, ull exponent, ull mod) {
+  ull result = 1;
+  for (; exponent; base = modmul(base, base, mod), exponent /= 2)
+    if (exponent & 1) result = modmul(result, base, mod);
+  return result;
 }

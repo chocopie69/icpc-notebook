@@ -1,3 +1,5 @@
+\ifdefined\notebookstrategy
+\else
 \documentclass{article}
 \usepackage[utf8x]{inputenc}
 \author{Lukáš Poláček}
@@ -5,6 +7,7 @@
 \date{\today}
 \begin{document}
 \maketitle
+\fi
 This article is about my experience with ACM contests. I learned this from other
 people but mostly from my own and my team's mistakes.
 
@@ -104,4 +107,7 @@ You are now familiar with the general strategy. We continue with useful advices.
 \section*{Acknowledgments}
 Thanks to Gunnar and Per for comments.
 
+\ifdefined\notebookstrategy
+\else
 \end{document}
+\fi

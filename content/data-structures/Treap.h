@@ -5,62 +5,69 @@
  * Description: A short self-balancing tree. It acts as a
  *  sequential container with log-time splits/joins, and
  *  is easy to augment with additional data.
+ * This is an implicit treap: in-order position is the key. split(root,k) separates the first k
+ * values; merge(a,b) concatenates sequences. Positions and ranges are 0-based, with ranges
+ * [l,r). Save roots returned by ins/merge, and recalc after changing children. Extend recalc for
+ * sums or lazy tags.
  * Time: $O(\log N)$
  * Status: stress-tested
+ * Usage: TreapNode *root=nullptr;
+ * root=ins(root,new TreapNode(7),0);
+ * auto [a,b]=split(root,1); root=merge(a,b);
  */
 #pragma once
 struct TreapNode {
-  TreapNode *l = 0, *r = 0;
-  int val, y, c = 1;
-  TreapNode(int val) : val(val), y(rand()) {}
+  TreapNode *left = 0, *right = 0;
+  int val, priority, size = 1;
+  TreapNode(int val) : val(val), priority(rand()) {}
   void recalc();
 };
-int cnt(TreapNode *n) { return n ? n->c : 0; }
-void TreapNode::recalc() { c = cnt(l) + cnt(r) + 1; }
-template <class F>
-void each(TreapNode *n, F f) {
-  if (n) {
-    each(n->l, f);
-    f(n->val);
-    each(n->r, f);
+int cnt(TreapNode *node) { return node ? node->size : 0; }
+void TreapNode::recalc() { size = cnt(left) + cnt(right) + 1; }
+template <class F> void each(TreapNode *node, F visit) {
+  if (node) {
+    each(node->left, visit);
+    visit(node->val);
+    each(node->right, visit);
   }
 }
-pair<TreapNode *, TreapNode *> split(TreapNode *n, int k) {
-  if (!n) return {};
-  if (cnt(n->l) >= k) { // "n->val >= k" for lower_bound(k)
-    auto [L, R] = split(n->l, k);
-    n->l = R;
-    n->recalc();
-    return {L, n};
+pair<TreapNode *, TreapNode *> split(TreapNode *node, int leftCount) {
+  if (!node) return {};
+  if (cnt(node->left) >= leftCount) { // "node->val >= key" for lower_bound(k)
+    auto [leftPart, rightPart] = split(node->left, leftCount);
+    node->left = rightPart;
+    node->recalc();
+    return {leftPart, node};
   } else {
-    auto [L, R] = split(n->r, k - cnt(n->l) - 1); // and just "k"
-    n->r = L;
-    n->recalc();
-    return {n, R};
+    auto [leftPart, rightPart] =
+        split(node->right, leftCount - cnt(node->left) - 1); // and just "key"
+    node->right = leftPart;
+    node->recalc();
+    return {node, rightPart};
   }
 }
-TreapNode *merge(TreapNode *l, TreapNode *r) {
-  if (!l) return r;
-  if (!r) return l;
-  if (l->y > r->y) {
-    l->r = merge(l->r, r);
-    return l->recalc(), l;
+TreapNode *merge(TreapNode *left, TreapNode *right) {
+  if (!left) return right;
+  if (!right) return left;
+  if (left->priority > right->priority) {
+    left->right = merge(left->right, right);
+    return left->recalc(), left;
   } else {
-    r->l = merge(l, r->l);
-    return r->recalc(), r;
+    right->left = merge(left, right->left);
+    return right->recalc(), right;
   }
 }
-TreapNode *ins(TreapNode *t, TreapNode *n, int pos) {
-  auto [l, r] = split(t, pos);
-  return merge(merge(l, n), r);
+TreapNode *ins(TreapNode *root, TreapNode *node, int pos) {
+  auto [left, right] = split(root, pos);
+  return merge(merge(left, node), right);
 }
-// Example application: move the range [l, r) to index k
-void move(TreapNode *&t, int l, int r, int k) {
-  TreapNode *a, *b, *c;
-  tie(a, b) = split(t, l);
-  tie(b, c) = split(b, r - l);
-  if (k <= l)
-    t = merge(ins(a, b, k), c);
+// Example application: move the range [left, right) to index targetPos
+void move(TreapNode *&root, int left, int right, int targetPos) {
+  TreapNode *prefix, *middle, *suffix;
+  tie(prefix, middle) = split(root, left);
+  tie(middle, suffix) = split(middle, right - left);
+  if (targetPos <= left)
+    root = merge(ins(prefix, middle, targetPos), suffix);
   else
-    t = merge(a, ins(c, b, k - r));
+    root = merge(prefix, ins(suffix, middle, targetPos - right));
 }

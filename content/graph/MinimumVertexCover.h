@@ -2,37 +2,39 @@
  * Author: Johan Sannemo, Simon Lindholm
  * Date: 2016-12-15
  * License: CC0
- * Description: Finds a minimum vertex cover in a bipartite graph.
- *  The size is the same as the size of a maximum matching, and
- *  the complement is a maximum independent set.
+ * Description: Bipartite only: adj has n left vertices listing right indices 0..m-1. Returned IDs <n are left
+ * vertices; IDs n+v denote right vertex v. Vertices outside the cover form a maximum independent
+ * set.
  * Status: stress-tested
+ * Usage: auto vertices=cover(adj,n,m);
+ * // id<n: left id; otherwise right id-n.
  */
 #pragma once
 
 #include "DFSMatching.h"
-vector<int> cover(vector<vector<int>> &g, int n, int m) {
-  vector<int> match(m, -1);
-  int res = dfsMatching(g, match);
-  vector<bool> lfound(n, true), seen(m);
-  for (int it : match)
-    if (it != -1) lfound[it] = false;
-  vector<int> q, cover;
+vector<int> cover(vector<vector<int>> &adj, int n, int m) {
+  vector<int> matchRight(m, -1);
+  int matchingSize = dfsMatching(adj, matchRight);
+  vector<bool> reachableLeft(n, true), reachableRight(m);
+  for (int matchedLeft : matchRight)
+    if (matchedLeft != -1) reachableLeft[matchedLeft] = false;
+  vector<int> stack, cover;
   for (int i = 0; i < (n); ++i)
-    if (lfound[i]) q.push_back(i);
-  while (!q.empty()) {
-    int i = q.back();
-    q.pop_back();
-    lfound[i] = 1;
-    for (int e : g[i])
-      if (!seen[e] && match[e] != -1) {
-        seen[e] = true;
-        q.push_back(match[e]);
+    if (reachableLeft[i]) stack.push_back(i);
+  while (!stack.empty()) {
+    int i = stack.back();
+    stack.pop_back();
+    reachableLeft[i] = 1;
+    for (int v : adj[i])
+      if (!reachableRight[v] && matchRight[v] != -1) {
+        reachableRight[v] = true;
+        stack.push_back(matchRight[v]);
       }
   }
   for (int i = 0; i < (n); ++i)
-    if (!lfound[i]) cover.push_back(i);
+    if (!reachableLeft[i]) cover.push_back(i);
   for (int i = 0; i < (m); ++i)
-    if (seen[i]) cover.push_back(n + i);
-  assert(sz(cover) == res);
+    if (reachableRight[i]) cover.push_back(n + i);
+  assert(sz(cover) == matchingSize);
   return cover;
 }

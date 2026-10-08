@@ -6,8 +6,16 @@
  * Description: Runs a callback for all maximal cliques in a graph (given as a
  * symmetric bitset matrix; self-edges not allowed). Callback is given a bitset
  * representing the maximal clique.
+ * Maximal means no vertex can be added; it does not mean largest. For a maximum clique use
+ * MaximumClique, or examine every callback and keep the largest. Vertices are 0-based and there
+ * are at most 128. Pass candidates containing exactly the valid vertex bits; the default mask
+ * includes bits beyond n.
  * Time: O(3^{n/3}), much faster for sparse graphs
  * Status: stress-tested
+ * Usage: vector<B> adj(n); B candidates;
+ * for (int u=0;u<n;u++) candidates.set(u);
+ * // Set adj[u][v]=adj[v][u]=1 for each edge.
+ * cliques(adj,[](B clique) { ... },candidates);
  */
 #pragma once
 /// Possible optimization: on the top-most
@@ -17,18 +25,18 @@
 
 typedef bitset<128> B;
 template <class F>
-void cliques(vector<B> &eds, F f, B P = ~B(), B X = {}, B R = {}) {
-  if (!P.any()) {
-    if (!X.any()) f(R);
+void cliques(vector<B> &adj, F visitClique, B candidates = ~B(), B excluded = {}, B clique = {}) {
+  if (!candidates.any()) {
+    if (!excluded.any()) visitClique(clique);
     return;
   }
-  auto q = (P | X)._Find_first();
-  auto cands = P & ~eds[q];
-  for (int i = 0; i < (sz(eds)); ++i)
-    if (cands[i]) {
-      R[i] = 1;
-      cliques(eds, f, P & eds[i], X & eds[i], R);
-      R[i] = P[i] = 0;
-      X[i] = 1;
+  auto pivot = (candidates | excluded)._Find_first();
+  auto branches = candidates & ~adj[pivot];
+  for (int i = 0; i < (sz(adj)); ++i)
+    if (branches[i]) {
+      clique[i] = 1;
+      cliques(adj, visitClique, candidates & adj[i], excluded & adj[i], clique);
+      clique[i] = candidates[i] = 0;
+      excluded[i] = 1;
     }
 }

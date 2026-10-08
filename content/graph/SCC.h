@@ -3,18 +3,19 @@
  * Date: 2009-10-28
  * License: CC0
  * Source: Czech graph algorithms book, by Demel. (Tarjan's algorithm)
- * Description: Tarjan's strongly connected components for a directed graph.
- * Default vertices are 1..n (adj[0] unused); pass firstVertex=0 for 0-based graphs.
- * comp[u] is the component ID; components[id] contains its vertices. IDs start at 0
- * in reverse topological order: an edge between components goes to a smaller ID.
- * num[u] is the DFS entry time; low[u] is the smallest entry reachable while active.
- * Usage: SCC scc(adj); int id = scc.comp[u]; int count = sz(scc.components);
+ * Description: Directed SCCs; default vertices 1..n, or pass firstVertex=0. comp[u] is a 0-based component ID
+ * and components[id] lists its vertices. Inter-component edges go to smaller IDs; process IDs in
+ * descending order for topological order. Build a new object after changing edges.
+ * Usage: SCC scc(adj); bool same=scc.comp[u]==scc.comp[v];
+ * for (int id=sz(scc.components)-1;id>=0;id--) {
+ *   // Process scc.components[id] in topological order.
+ * }
  * Time: $O(N+E)$ time and memory.
  */
 #pragma once
 struct SCC {
   int timer = 0;
-  vector<int> num, low, comp, st;
+  vector<int> num, low, comp, activeStack;
   vector<bool> inStack;
   vector<vector<int>> components;
   SCC(const vector<vector<int>> &adj, int firstVertex = 1) {
@@ -30,7 +31,7 @@ struct SCC {
     timer++;
     num[u] = timer;
     low[u] = timer;
-    st.push_back(u);
+    activeStack.push_back(u);
     inStack[u] = true;
     for (int v : adj[u]) {
       if (num[v] == 0) {
@@ -44,8 +45,8 @@ struct SCC {
     int id = sz(components);
     components.push_back({});
     while (true) {
-      int v = st.back();
-      st.pop_back();
+      int v = activeStack.back();
+      activeStack.pop_back();
       inStack[v] = false;
       comp[v] = id;
       components[id].push_back(v);

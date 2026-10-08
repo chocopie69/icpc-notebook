@@ -6,6 +6,10 @@
  * Description: Returns the smallest $x > 0$ s.t. $a^x = b \pmod m$, or
  * $-1$ if no such $x$ exists. modLog(a,1,m) can be used to
  * calculate the order of $a$.
+ * Use for discrete logarithms when sqrt(modulus) work/storage fit. Also supports non-coprime
+ * bases. The exponent is strictly positive: target=1 asks for a multiplicative order, not
+ * exponent zero. Normalize base and target to [0,modulus); modulus is positive and direct
+ * modular products must fit ll.
  * Time: $O(\sqrt m)$
  * Status: tested for all 0 <= a,x < 500 and 0 < m < 500.
  *
@@ -29,17 +33,19 @@
  * So the modification allowing for non-coprime input involves checking all
  * exponents of a that are <= n, and then handling the non-tricky cases by
  * a simple gcd(a^n,m) == gcd(b,m) check.
+ * Usage: ll exponent=modLog(2,8,13); // 3
+ * ll absent=modLog(2,3,4); // -1
  */
 #pragma once
-ll modLog(ll a, ll b, ll m) {
-  ll n = (ll)sqrt(m) + 1, e = 1, f = 1, j = 1;
-  unordered_map<ll, ll> A;
-  while (j <= n && (e = f = e * a % m) != b % m)
-    A[e * b % m] = j++;
-  if (e == b % m) return j;
-  if (__gcd(m, e) == __gcd(m, b))
-    for (int i = 2; i < (n + 2); ++i)
-      if (A.count(e = e * f % m))
-        return n * i - A[e];
+ll modLog(ll base, ll target, ll modulus) {
+  ll blockSize = (ll)sqrt(modulus) + 1, power = 1, giantStep = 1, j = 1;
+  unordered_map<ll, ll> babySteps;
+  while (j <= blockSize && (power = giantStep = power * base % modulus) != target % modulus)
+    babySteps[power * target % modulus] = j++;
+  if (power == target % modulus) return j;
+  if (__gcd(modulus, power) == __gcd(modulus, target))
+    for (int i = 2; i < (blockSize + 2); ++i)
+      if (babySteps.count(power = power * giantStep % modulus))
+        return blockSize * i - babySteps[power];
   return -1;
 }

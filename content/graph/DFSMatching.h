@@ -3,36 +3,36 @@
  * Date: 2009-10-28
  * License: CC0
  * Source:
- * Description: Simple bipartite matching algorithm. Graph $g$ should be a list
- * of neighbors of the left partition, and $btoa$ should be a vector full of
- * -1's of the same size as the right partition. Returns the size of
- * the matching. $btoa[i]$ will be the match for vertex $i$ on the right side,
- * or $-1$ if it's not matched.
+ * Description: Maximum bipartite matching for smaller graphs. adj lists right neighbors of left vertices,
+ * with separate 0-based indices per side. Initialize matchRight to -1; it stores the matched
+ * left vertex or -1. Returns matching size; prefer HopcroftKarp when V*E is large.
  * Time: O(VE)
- * Usage: vector<int> btoa(m, -1); dfsMatching(g, btoa);
+ * Usage: vector<vector<int>> adj={{0,1},{1}};
+ * vector<int> matchRight(2,-1);
+ * int size=dfsMatching(adj,matchRight); // 2
  * Status: works
  */
 #pragma once
-bool find(int j, vector<vector<int>> &g, vector<int> &btoa, vector<int> &vis) {
-  if (btoa[j] == -1) return 1;
-  vis[j] = 1;
-  int di = btoa[j];
-  for (int e : g[di])
-    if (!vis[e] && find(e, g, btoa, vis)) {
-      btoa[e] = di;
+bool find(int v, vector<vector<int>> &adj, vector<int> &matchRight, vector<int> &visited) {
+  if (matchRight[v] == -1) return 1;
+  visited[v] = 1;
+  int matchedLeft = matchRight[v];
+  for (int nextRight : adj[matchedLeft])
+    if (!visited[nextRight] && find(nextRight, adj, matchRight, visited)) {
+      matchRight[nextRight] = matchedLeft;
       return 1;
     }
   return 0;
 }
-int dfsMatching(vector<vector<int>> &g, vector<int> &btoa) {
-  vector<int> vis;
-  for (int i = 0; i < (sz(g)); ++i) {
-    vis.assign(sz(btoa), 0);
-    for (int j : g[i])
-      if (find(j, g, btoa, vis)) {
-        btoa[j] = i;
+int dfsMatching(vector<vector<int>> &adj, vector<int> &matchRight) {
+  vector<int> visited;
+  for (int i = 0; i < (sz(adj)); ++i) {
+    visited.assign(sz(matchRight), 0);
+    for (int v : adj[i])
+      if (find(v, adj, matchRight, visited)) {
+        matchRight[v] = i;
         break;
       }
   }
-  return sz(btoa) - (int)count(all(btoa), -1);
+  return sz(matchRight) - (int)count(all(matchRight), -1);
 }

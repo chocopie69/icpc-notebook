@@ -4,24 +4,31 @@
  * Source: Pisinger 1999, "Linear Time Algorithms for Knapsack Problems with Bounded Weights"
  * Description: Given N non-negative integer weights w and a non-negative target t,
  * computes the maximum S <= t such that S is the sum of some subset of the weights.
+ * This is 0/1 subset sum with bounded weights: each weight is used at most once and value equals
+ * weight. Returns only the best achievable sum, not chosen items. Weights/capacity must be
+ * nonnegative and sums must fit int. Useful when maxWeight is small even if capacity is large.
+ * This is not general profit/weight knapsack.
  * Time: O(N \max(w_i))
  * Status: Tested on kattis:eavesdropperevasion, stress-tested
+ * Usage: int best=knapsack({3,5,7},10); // 10, using 3+7
  */
 #pragma once
-int knapsack(vector<int> w, int t) {
-  int a = 0, b = 0, x;
-  while (b < sz(w) && a + w[b] <= t) a += w[b++];
-  if (b == sz(w)) return a;
-  int m = *max_element(all(w));
-  vector<int> u, v(2 * m, -1);
-  v[a + m - t] = b;
-  for (int i = b; i < (sz(w)); ++i) {
-    u = v;
-    for (int x = 0; x < (m); ++x) v[x + w[i]] = max(v[x + w[i]], u[x]);
-    for (x = 2 * m; --x > m;)
-      for (int j = max(0, u[x]); j < (v[x]); ++j)
-        v[x - w[j]] = max(v[x - w[j]], j);
+int knapsack(vector<int> weights, int capacity) {
+  int total = 0, prefixSize = 0, state;
+  while (prefixSize < sz(weights) && total + weights[prefixSize] <= capacity)
+    total += weights[prefixSize++];
+  if (prefixSize == sz(weights)) return total;
+  int maxWeight = *max_element(all(weights));
+  vector<int> previous, dp(2 * maxWeight, -1);
+  dp[total + maxWeight - capacity] = prefixSize;
+  for (int i = prefixSize; i < (sz(weights)); ++i) {
+    previous = dp;
+    for (int state = 0; state < (maxWeight); ++state)
+      dp[state + weights[i]] = max(dp[state + weights[i]], previous[state]);
+    for (state = 2 * maxWeight; --state > maxWeight;)
+      for (int j = max(0, previous[state]); j < (dp[state]); ++j)
+        dp[state - weights[j]] = max(dp[state - weights[j]], j);
   }
-  for (a = t; v[a + m - t] < 0; a--);
-  return a;
+  for (total = capacity; dp[total + maxWeight - capacity] < 0; total--);
+  return total;
 }

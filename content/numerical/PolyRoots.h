@@ -3,36 +3,40 @@
  * Date: 2004-02-08
  * License: CC0
  * Description: Finds the real roots to a polynomial.
- * Usage: polyRoots({{2,-3,1}},-1e9,1e9) // solve x^2-3x+2 = 0
+ * Uses derivative roots to split the line into monotone pieces, then bisects sign changes. Use a
+ * nonconstant polynomial with nonzero leading coefficient and coefficients in increasing degree
+ * order. Choose bounds covering the roots of interest; this implementation may also return
+ * candidates outside those bounds. Repeated roots without a sign change are not guaranteed and
+ * need separate handling.
+ * Usage: auto roots=polyRoots(Poly{{2,-3,1}},-10,10);
+ * // approximately {1,2}
  * Time: O(n^2 \log(1/\epsilon))
  */
 #pragma once
 
 #include "Polynomial.h"
-vector<double> polyRoots(Poly p, double xmin, double xmax) {
-  if (sz(p.a) == 2) {
-    return {-p.a[0] / p.a[1]};
-  }
-  vector<double> ret;
-  Poly der = p;
-  der.diff();
-  auto dr = polyRoots(der, xmin, xmax);
-  dr.push_back(xmin - 1);
-  dr.push_back(xmax + 1);
-  sort(all(dr));
-  for (int i = 0; i < (sz(dr) - 1); ++i) {
-    double l = dr[i], h = dr[i + 1];
-    bool sign = p(l) > 0;
-    if (sign ^ (p(h) > 0)) {
+vector<double> polyRoots(Poly poly, double minX, double maxX) {
+  if (sz(poly.coeff) == 2) return {-poly.coeff[0] / poly.coeff[1]};
+  vector<double> roots;
+  Poly derivative = poly;
+  derivative.diff();
+  auto criticalPoints = polyRoots(derivative, minX, maxX);
+  criticalPoints.push_back(minX - 1);
+  criticalPoints.push_back(maxX + 1);
+  sort(all(criticalPoints));
+  for (int i = 0; i < (sz(criticalPoints) - 1); ++i) {
+    double lo = criticalPoints[i], hi = criticalPoints[i + 1];
+    bool positiveLeft = poly(lo) > 0;
+    if (positiveLeft ^ (poly(hi) > 0)) {
       for (int it = 0; it < (60); ++it) { // while (h - l > 1e-8)
-        double m = (l + h) / 2, f = p(m);
-        if ((f <= 0) ^ sign)
-          l = m;
+        double mid = (lo + hi) / 2, value = poly(mid);
+        if ((value <= 0) ^ positiveLeft)
+          lo = mid;
         else
-          h = m;
+          hi = mid;
       }
-      ret.push_back((l + h) / 2);
+      roots.push_back((lo + hi) / 2);
     }
   }
-  return ret;
+  return roots;
 }

@@ -5,29 +5,34 @@
  * Source: me
  * Description: Split a monotone function on [from, to) into a minimal set of half-open intervals on which it has the same value.
  *  Runs a callback g for each such interval.
- * Usage: constantIntervals(0, sz(v), [\&](int x){return v[x];}, [\&](int lo, int hi, T val){...});
+ * Use when evaluating a monotone integer-indexed function is expensive and it changes value only
+ * a few times. visitInterval receives (lo,hi,value) for each maximal [lo,hi).
+ * Increasing/decreasing functions both work. A value must not disappear then return, or equal
+ * endpoints can hide changes. valueAt must be deterministic.
+ * Usage: constantIntervals(0,10,[](int i) { return i/3; },
+ *   [](int lo,int hi,int value) { ... });
  * Time: O(k\log\frac{n}{k})
  * Status: tested
  */
 #pragma once
 template <class F, class G, class T>
-void rec(int from, int to, F &f, G &g, int &i, T &p, T q) {
-  if (p == q) return;
+void rec(int from, int to, F &valueAt, G &visitInterval, int &intervalStart, T &currentValue,
+         T endValue) {
+  if (currentValue == endValue) return;
   if (from == to) {
-    g(i, to, p);
-    i = to;
-    p = q;
+    visitInterval(intervalStart, to, currentValue);
+    intervalStart = to;
+    currentValue = endValue;
   } else {
     int mid = (from + to) >> 1;
-    rec(from, mid, f, g, i, p, f(mid));
-    rec(mid + 1, to, f, g, i, p, q);
+    rec(from, mid, valueAt, visitInterval, intervalStart, currentValue, valueAt(mid));
+    rec(mid + 1, to, valueAt, visitInterval, intervalStart, currentValue, endValue);
   }
 }
-template <class F, class G>
-void constantIntervals(int from, int to, F f, G g) {
+template <class F, class G> void constantIntervals(int from, int to, F valueAt, G visitInterval) {
   if (to <= from) return;
-  int i = from;
-  auto p = f(i), q = f(to - 1);
-  rec(from, to - 1, f, g, i, p, q);
-  g(i, to, q);
+  int intervalStart = from;
+  auto currentValue = valueAt(intervalStart), endValue = valueAt(to - 1);
+  rec(from, to - 1, valueAt, visitInterval, intervalStart, currentValue, endValue);
+  visitInterval(intervalStart, to, endValue);
 }

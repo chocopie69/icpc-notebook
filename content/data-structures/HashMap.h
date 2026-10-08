@@ -1,28 +1,34 @@
 /**
- * Author: Simon Lindholm, chilli
- * Date: 2018-07-23
- * License: CC0
- * Source: http://codeforces.com/blog/entry/60737
- * Description: Hash map with mostly the same API as unordered\_map, but \tilde
- * 3x faster. Uses 1.5x memory.
- * Initial capacity must be a power of 2 (if provided).
+ * Author: Personal notebook; SplitMix64 by Sebastiano Vigna
+ * Source: https://prng.di.unimi.it/splitmix64.c
+ * Description: Integer-key hash map with a randomized SplitMix64 hash. A per-run seed makes
+ * fixed collision attacks harder to construct; collisions can still occur and worst-case
+ * time is not guaranteed. Collisions affect speed, not key equality or correctness.
+ * The hash and container are separate: the same CustomHash works with unordered\_map.
+ * GNU PBDS is required only for the gp hash table below. Values are int; change to ll for
+ * larger counts. hashMap[key] inserts zero if absent; find does not insert. Iteration is unsorted.
+ * Usage: hashMap[42]++;
+ * auto it=hashMap.find(42);
+ * if (it!=hashMap.end()) cout << it->second;
+ * hashMap.clear(); // between test cases
+ * // Standard-library alternative:
+ * unordered_map<ll,int,CustomHash> freq;
+ * freq.reserve(2*n); // optional, reduces rehashing
+ * Time: Expected $O(1)$ per insert/find/erase; worst-case $O(N)$ per operation.
  */
 #pragma once
-
-#include <bits/extc++.h> /** keep-include */
-// To use most bits rather than just the lowest ones:
-struct CustomHash { // large odd number for C
-  const uint64_t C = (ll)(4e18 * acos(0)) | 71;
-  ll operator()(ll x) const { return __builtin_bswap64(x * C); }
+#include <ext/pb_ds/assoc_container.hpp> /** keep-include */
+struct CustomHash {
+  static ull mix(ull x) {
+    // Fixed constants mix all 64 bits; unsigned overflow is intentional.
+    x += 0x9e3779b97f4a7c15ULL;
+    x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9ULL;
+    x = (x ^ (x >> 27)) * 0x94d049bb133111ebULL;
+    return x ^ (x >> 31);
+  }
+  size_t operator()(ll key) const {
+    static const ull seed = chrono::steady_clock::now().time_since_epoch().count();
+    return mix((ull)key + seed);
+  }
 };
-__gnu_pbds::gp_hash_table<ll, int, CustomHash> h({}, {}, {}, {}, {1 << 16});
-
-/** For CodeForces, or other places where hacking might be a problem:
-
-const int RANDOM = chrono::high_resolution_clock::now().time_since_epoch().count();
-struct CustomHash { // To use most bits rather than just the lowest ones:
-    const uint64_t C = (ll)(4e18 * acos(0)) | 71; // large odd number
-    ll operator()(ll x) const { return __builtin_bswap64((x^RANDOM)*C); }
-};
-__gnu_pbds::gp_hash_table<ll, int, CustomHash> h({},{},{},{}, {1 << 16});
-*/
+__gnu_pbds::gp_hash_table<ll, int, CustomHash> hashMap;

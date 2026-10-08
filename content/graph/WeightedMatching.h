@@ -9,32 +9,39 @@
  * cost[N][M], where cost[i][j] = cost for L[i] to be matched with R[j], and
  * returns (min cost, match), where L[i] is matched with
  * R[match[i]]. Negate costs for max cost. Requires $N \le M$.
+ * Use to assign each left item to a distinct right item. Rows/columns are 0-based; every row has
+ * the same length and rows<=columns. Missing edges need a sufficiently large cost, followed by
+ * checking none was chosen. Use ll when total costs may exceed int. This minimizes total cost,
+ * not matching cardinality.
  * Time: O(N^2M)
  * Status: Tested on kattis:cordonbleu, kattis:engaging, stress-tested
+ * Usage: vector<vector<ll>> costs={{3,1,8},{2,4,6}};
+ * auto [minCost,match]=weightedMatching(costs); // cost=3
+ * // Row i is assigned to column match[i].
  */
 #pragma once
-template <class T>
-pair<T, vector<int>> weightedMatching(vector<vector<T>> &C) {
-  int i = sz(C), m = i ? sz(C[0]) : 0, c, s, r;
-  vector<T> dist(m), pot(m);
-  vector<int> match(i), rev(m, -1), cols(m), prev(m);
-  T d = 0, nd, cost = 0;
+template <class T> pair<T, vector<int>> weightedMatching(vector<vector<T>> &costs) {
+  int i = sz(costs), m = i ? sz(costs[0]) : 0, col, scannedCols, row;
+  vector<T> dist(m), potential(m);
+  vector<int> matchLeft(i), matchRight(m, -1), colOrder(m), parentRow(m);
+  T minDist = 0, newDist, cost = 0;
   while (i--) {
-    for (int c = 0; c < (m); ++c) dist[c] = C[i][c], cols[c] = c, prev[c] = i;
-    for (s = 0;;) {
-      for (int j = s; j < (m); ++j) {
-        c = cols[j], nd = dist[c] - pot[c];
-        if (j == s || d > nd) d = nd, swap(cols[s], cols[j]);
+    for (int col = 0; col < (m); ++col)
+      dist[col] = costs[i][col], colOrder[col] = col, parentRow[col] = i;
+    for (scannedCols = 0;;) {
+      for (int j = scannedCols; j < (m); ++j) {
+        col = colOrder[j], newDist = dist[col] - potential[col];
+        if (j == scannedCols || minDist > newDist)
+          minDist = newDist, swap(colOrder[scannedCols], colOrder[j]);
       }
-      if ((r = rev[c = cols[s++]]) == -1) break;
+      if ((row = matchRight[col = colOrder[scannedCols++]]) == -1) break;
       for (int j = 0; j < (m); ++j)
-        if (dist[j] > (nd = C[r][j] - C[r][c] + dist[c]))
-          dist[j] = nd, prev[j] = r;
+        if (dist[j] > (newDist = costs[row][j] - costs[row][col] + dist[col]))
+          dist[j] = newDist, parentRow[j] = row;
     }
-    cost += dist[c];
-    while (s--) pot[cols[s]] = dist[cols[s]] - d;
-    for (; r != i; swap(c, match[r]))
-      r = rev[c] = prev[c];
+    cost += dist[col];
+    while (scannedCols--) potential[colOrder[scannedCols]] = dist[colOrder[scannedCols]] - minDist;
+    for (; row != i; swap(col, matchLeft[row])) row = matchRight[col] = parentRow[col];
   }
-  return {cost, match};
+  return {cost, matchLeft};
 }

@@ -11,60 +11,60 @@
 #pragma once
 struct PushRelabel {
   struct Edge {
-    int dest, back;
-    ll f, c;
+    int to, rev;
+    ll flow, cap;
   };
-  vector<vector<Edge>> g;
-  vector<ll> ec;
-  vector<Edge *> cur;
-  vector<vector<int>> hs;
-  vector<int> H;
-  PushRelabel(int n) : g(n), ec(n), cur(n), hs(2 * n), H(n) {}
-  void addEdge(int s, int t, ll cap, ll rcap = 0) {
+  vector<vector<Edge>> adj;
+  vector<ll> excess;
+  vector<Edge *> currentEdge;
+  vector<vector<int>> activeByHeight;
+  vector<int> height;
+  PushRelabel(int n) : adj(n), excess(n), currentEdge(n), activeByHeight(2 * n), height(n) {}
+  void addEdge(int s, int t, ll cap, ll reverseCap = 0) {
     if (s == t) return;
-    g[s].push_back({t, sz(g[t]), 0, cap});
-    g[t].push_back({s, sz(g[s]) - 1, 0, rcap});
+    adj[s].push_back({t, sz(adj[t]), 0, cap});
+    adj[t].push_back({s, sz(adj[s]) - 1, 0, reverseCap});
   }
-  void addFlow(Edge &e, ll f) {
-    Edge &back = g[e.dest][e.back];
-    if (!ec[e.dest] && f) hs[H[e.dest]].push_back(e.dest);
-    e.f += f;
-    e.c -= f;
-    ec[e.dest] += f;
-    back.f -= f;
-    back.c += f;
-    ec[back.dest] -= f;
+  void addFlow(Edge &e, ll flow) {
+    Edge &reverseEdge = adj[e.to][e.rev];
+    if (!excess[e.to] && flow) activeByHeight[height[e.to]].push_back(e.to);
+    e.flow += flow;
+    e.cap -= flow;
+    excess[e.to] += flow;
+    reverseEdge.flow -= flow;
+    reverseEdge.cap += flow;
+    excess[reverseEdge.to] -= flow;
   }
   ll calc(int s, int t) {
-    int v = sz(g);
-    H[s] = v;
-    ec[t] = 1;
-    vector<int> co(2 * v);
-    co[0] = v - 1;
-    for (int i = 0; i < (v); ++i) cur[i] = g[i].data();
-    for (Edge &e : g[s]) addFlow(e, e.c);
+    int n = sz(adj);
+    height[s] = n;
+    excess[t] = 1;
+    vector<int> heightCount(2 * n);
+    heightCount[0] = n - 1;
+    for (int i = 0; i < (n); ++i) currentEdge[i] = adj[i].data();
+    for (Edge &e : adj[s]) addFlow(e, e.cap);
 
-    for (int hi = 0;;) {
-      while (hs[hi].empty())
-        if (!hi--) return -ec[s];
-      int u = hs[hi].back();
-      hs[hi].pop_back();
-      while (ec[u] > 0) // discharge u
-        if (cur[u] == g[u].data() + sz(g[u])) {
-          H[u] = 1e9;
-          for (Edge &e : g[u])
-            if (e.c && H[u] > H[e.dest] + 1)
-              H[u] = H[e.dest] + 1, cur[u] = &e;
-          if (++co[H[u]], !--co[hi] && hi < v)
-            for (int i = 0; i < (v); ++i)
-              if (hi < H[i] && H[i] < v)
-                --co[H[i]], H[i] = v + 1;
-          hi = H[u];
-        } else if (cur[u]->c && H[u] == H[cur[u]->dest] + 1)
-          addFlow(*cur[u], min(ec[u], cur[u]->c));
+    for (int maxHeight = 0;;) {
+      while (activeByHeight[maxHeight].empty())
+        if (!maxHeight--) return -excess[s];
+      int u = activeByHeight[maxHeight].back();
+      activeByHeight[maxHeight].pop_back();
+      while (excess[u] > 0) // discharge u
+        if (currentEdge[u] == adj[u].data() + sz(adj[u])) {
+          height[u] = 1e9;
+          for (Edge &e : adj[u])
+            if (e.cap && height[u] > height[e.to] + 1)
+              height[u] = height[e.to] + 1, currentEdge[u] = &e;
+          if (++heightCount[height[u]], !--heightCount[maxHeight] && maxHeight < n)
+            for (int i = 0; i < (n); ++i)
+              if (maxHeight < height[i] && height[i] < n)
+                --heightCount[height[i]], height[i] = n + 1;
+          maxHeight = height[u];
+        } else if (currentEdge[u]->cap && height[u] == height[currentEdge[u]->to] + 1)
+          addFlow(*currentEdge[u], min(excess[u], currentEdge[u]->cap));
         else
-          ++cur[u];
+          ++currentEdge[u];
     }
   }
-  bool leftOfMinCut(int a) { return H[a] >= sz(g); }
+  bool leftOfMinCut(int a) { return height[a] >= sz(adj); }
 };

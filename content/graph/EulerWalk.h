@@ -3,35 +3,38 @@
  * Date: 2019-12-31
  * License: CC0
  * Source: folklore
- * Description: Eulerian undirected/directed path/cycle algorithm.
- * Input should be a vector of (dest, global edge index), where
- * for undirected graphs, forward/backward edges have the same index.
- * Returns a list of nodes in the Eulerian path/cycle with src at both start and end, or
- * empty list if no cycle/path exists.
- * To get edge indices back, add .second to s and ret.
+ * Description: Hierholzer traversal uses every edge exactly once. Vertices are 0-based and edge IDs are
+ * 0..edgeCount-1. For undirected edges, add both directions with the same ID; for directed
+ * edges, add one entry. For an open trail, choose an odd-degree start in an undirected graph, or
+ * a vertex with outdegree=indegree+1 in a directed graph. For a cycle choose a vertex incident
+ * to an edge. Returns edgeCount+1 vertices or an empty vector on failure. Open trails have
+ * different endpoints.
  * Time: O(V + E)
  * Status: stress-tested
+ * Usage: vector<vector<pii>> adj(3);
+ * adj[0].push_back({1,0}); adj[1].push_back({2,1});
+ * auto walk=eulerWalk(adj,2,0); // directed: {0,1,2}
  */
 #pragma once
-vector<int> eulerWalk(vector<vector<pii>> &gr, int nedges, int src = 0) {
-  int n = sz(gr);
-  vector<int> D(n), its(n), eu(nedges), ret, s = {src};
-  D[src]++; // to allow Euler paths, not just cycles
-  while (!s.empty()) {
-    int x = s.back(), y, e, &it = its[x], end = sz(gr[x]);
-    if (it == end) {
-      ret.push_back(x);
-      s.pop_back();
+vector<int> eulerWalk(vector<vector<pii>> &adj, int edgeCount, int source = 0) {
+  int n = sz(adj);
+  vector<int> balance(n), nextEdge(n), usedEdge(edgeCount), walk, stack = {source};
+  balance[source]++; // to allow Euler paths, not just cycles
+  while (!stack.empty()) {
+    int u = stack.back(), v, edgeId, &it = nextEdge[u], degree = sz(adj[u]);
+    if (it == degree) {
+      walk.push_back(u);
+      stack.pop_back();
       continue;
     }
-    tie(y, e) = gr[x][it++];
-    if (!eu[e]) {
-      D[x]--, D[y]++;
-      eu[e] = 1;
-      s.push_back(y);
+    tie(v, edgeId) = adj[u][it++];
+    if (!usedEdge[edgeId]) {
+      balance[u]--, balance[v]++;
+      usedEdge[edgeId] = 1;
+      stack.push_back(v);
     }
   }
-  for (int x : D)
-    if (x < 0 || sz(ret) != nedges + 1) return {};
-  return {ret.rbegin(), ret.rend()};
+  for (int degreeDelta : balance)
+    if (degreeDelta < 0 || sz(walk) != edgeCount + 1) return {};
+  return {walk.rbegin(), walk.rend()};
 }

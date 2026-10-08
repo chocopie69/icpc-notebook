@@ -10,9 +10,25 @@
 
 \begin{document}
 	\maketeampage
+	\begingroup
+	\def\notebookstrategy{1}
+	\csname c@secnumdepth\endcsname=-1\relax
+	\pdfbookmark[0]{ICPC Strategy}{strategy}
+	\begin{center}
+		{\Large\bfseries ICPC Strategy}\par
+		By Luk\'a\v{s} Pol\'a\v{c}ek
+	\end{center}
+	\begin{multicols}{3}
+	\input{doc/strategy.tex}
+	\end{multicols}
+	\clearpage
+	\endgroup
 	% Small KACTL header on the first page:
 	% \maketitle{``One Last Time'' Edition}{\today}
 	\begin{multicols*}{3}
+	% Keep natural spacing instead of stretching gaps to align column bottoms.
+	\raggedcolumns
+	\setlength{\parskip}{2pt}
 	\thispagestyle{fancy}
 	% Table of contents, without subsections:
 	\setcounter{tocdepth}{0}
@@ -20,17 +36,13 @@
 
 	\kactlchapter{contest}
 	\kactlchapter{math}
-	\kactlchapter{data-structures}
 	\kactlchapter{numerical}
 	\kactlchapter{number-theory}
 	\kactlchapter{combinatorial}
+	\kactlchapter{data-structures}
 	\kactlchapter{graph}
 	\kactlchapter{geometry}
 	\kactlchapter{strings}
 	\kactlchapter{various}
-	\end{multicols*}
-
-	\begin{multicols*}{3}
-	\kactlchapter{appendix}
 	\end{multicols*}
 \end{document}

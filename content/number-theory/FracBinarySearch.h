@@ -6,7 +6,11 @@
  * such that $f(p/q)$ is true, and $p, q \le N$.
  * You may want to throw an exception from $f$ if it finds an exact solution,
  * in which case $N$ can be removed.
- * Usage: fracBS([](Frac f) { return f.p>=3*f.q; }, 10); // {1,3}
+ * The predicate must be monotone false-to-true as p/q increases, and true at 1. limit>=1 bounds
+ * both p and q. Compare fractions by cross multiplication to avoid rounding; products must fit
+ * ll. Finds an exact bounded fraction rather than a floating approximation.
+ * Usage: Frac answer=fracBS([](Frac x) { return 3*x.p>=x.q; },10);
+ * // answer is {1,3}
  * Time: O(\log(N))
  * Status: stress-tested for n <= 300
  */
@@ -14,28 +18,27 @@
 struct Frac {
   ll p, q;
 };
-template <class F>
-Frac fracBS(F f, ll N) {
-  bool dir = 1, A = 1, B = 1;
+template <class F> Frac fracBS(F predicate, ll limit) {
+  bool moveHi = 1, prevAdvanced = 1, advanced = 1;
   Frac lo{0, 1}, hi{1, 1}; // Set hi to 1/0 to search (0, N]
-  if (f(lo)) return lo;
-  assert(f(hi));
-  while (A || B) {
-    ll adv = 0, step = 1; // move hi if dir, else lo
-    for (int si = 0; step; (step *= 2) >>= si) {
-      adv += step;
-      Frac mid{lo.p * adv + hi.p, lo.q * adv + hi.q};
-      if (abs(mid.p) > N || mid.q > N || dir == !f(mid)) {
-        adv -= step;
-        si = 2;
+  if (predicate(lo)) return lo;
+  assert(predicate(hi));
+  while (prevAdvanced || advanced) {
+    ll advance = 0, step = 1; // move hi if moveHi, else lo
+    for (int shift = 0; step; (step *= 2) >>= shift) {
+      advance += step;
+      Frac mid{lo.p * advance + hi.p, lo.q * advance + hi.q};
+      if (abs(mid.p) > limit || mid.q > limit || moveHi == !predicate(mid)) {
+        advance -= step;
+        shift = 2;
       }
     }
-    hi.p += lo.p * adv;
-    hi.q += lo.q * adv;
-    dir = !dir;
+    hi.p += lo.p * advance;
+    hi.q += lo.q * advance;
+    moveHi = !moveHi;
     swap(lo, hi);
-    A = B;
-    B = !!adv;
+    prevAdvanced = advanced;
+    advanced = !!advance;
   }
-  return dir ? hi : lo;
+  return moveHi ? hi : lo;
 }

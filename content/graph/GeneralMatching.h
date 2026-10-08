@@ -5,57 +5,64 @@
  * Source: http://www.mimuw.edu.pl/~mucha/pub/mucha_sankowski_focs04.pdf
  * Description: Matching for general graphs.
  * Fails with probability $N / mod$.
+ * Finds a maximum-cardinality matching in an undirected, possibly non-bipartite graph. Vertices
+ * are 0..n-1, each edge listed once, with no self-loops. Returned pairs are matched vertices.
+ * Uses a randomized Tutte matrix and modular matrix inversion, so a result can be wrong with the
+ * stated probability. It does not optimize edge weights.
  * Time: O(N^3)
  * Status: not very well tested
+ * Usage: vector<pii> edges={{0,1},{1,2},{2,0}};
+ * auto matching=generalMatching(3,edges); // one pair
  */
 #pragma once
 
 #include "../numerical/MatrixInverse-mod.h"
-vector<pii> generalMatching(int N, vector<pii> &ed) {
-  vector<vector<ll>> mat(N, vector<ll>(N)), A;
-  for (pii pa : ed) {
-    int a = pa.first, b = pa.second, r = rand() % mod;
-    mat[a][b] = r, mat[b][a] = (mod - r) % mod;
+vector<pii> generalMatching(int n, vector<pii> &edges) {
+  vector<vector<ll>> tutte(n, vector<ll>(n)), inverse;
+  for (pii edge : edges) {
+    int u = edge.first, v = edge.second, randomValue = rand() % mod;
+    tutte[u][v] = randomValue, tutte[v][u] = (mod - randomValue) % mod;
   }
 
-  int r = matInv(A = mat), M = 2 * N - r, matchI, matchJ;
-  assert(r % 2 == 0);
+  int rank = matInv(inverse = tutte), extendedSize = 2 * n - rank, matchedU, matchedV;
+  assert(rank % 2 == 0);
 
-  if (M != N) do {
-      mat.resize(M, vector<ll>(M));
-      for (int i = 0; i < (N); ++i) {
-        mat[i].resize(M);
-        for (int j = N; j < (M); ++j) {
-          int r = rand() % mod;
-          mat[i][j] = r, mat[j][i] = (mod - r) % mod;
+  if (extendedSize != n) do {
+      tutte.resize(extendedSize, vector<ll>(extendedSize));
+      for (int i = 0; i < (n); ++i) {
+        tutte[i].resize(extendedSize);
+        for (int j = n; j < (extendedSize); ++j) {
+          int randomValue = rand() % mod;
+          tutte[i][j] = randomValue, tutte[j][i] = (mod - randomValue) % mod;
         }
       }
-    } while (matInv(A = mat) != M);
+    } while (matInv(inverse = tutte) != extendedSize);
 
-  vector<int> has(M, 1);
-  vector<pii> ret;
-  for (int it = 0; it < (M / 2); ++it) {
-    for (int i = 0; i < (M); ++i)
-      if (has[i])
-        for (int j = i + 1; j < (M); ++j)
-          if (A[i][j] && mat[i][j]) {
-            matchI = i;
-            matchJ = j;
+  vector<int> active(extendedSize, 1);
+  vector<pii> matching;
+  for (int it = 0; it < (extendedSize / 2); ++it) {
+    for (int i = 0; i < (extendedSize); ++i)
+      if (active[i])
+        for (int j = i + 1; j < (extendedSize); ++j)
+          if (inverse[i][j] && tutte[i][j]) {
+            matchedU = i;
+            matchedV = j;
             goto done;
           }
     assert(0);
   done:
-    if (matchJ < N) ret.emplace_back(matchI, matchJ);
-    has[matchI] = has[matchJ] = 0;
-    for (int sw = 0; sw < (2); ++sw) {
-      ll a = modpow(A[matchI][matchJ], mod - 2);
-      for (int i = 0; i < (M); ++i)
-        if (has[i] && A[i][matchJ]) {
-          ll b = A[i][matchJ] * a % mod;
-          for (int j = 0; j < (M); ++j) A[i][j] = (A[i][j] - A[matchI][j] * b) % mod;
+    if (matchedV < n) matching.emplace_back(matchedU, matchedV);
+    active[matchedU] = active[matchedV] = 0;
+    for (int pass = 0; pass < (2); ++pass) {
+      ll pivotInverse = modpow(inverse[matchedU][matchedV], mod - 2);
+      for (int i = 0; i < (extendedSize); ++i)
+        if (active[i] && inverse[i][matchedV]) {
+          ll factor = inverse[i][matchedV] * pivotInverse % mod;
+          for (int j = 0; j < (extendedSize); ++j)
+            inverse[i][j] = (inverse[i][j] - inverse[matchedU][j] * factor) % mod;
         }
-      swap(matchI, matchJ);
+      swap(matchedU, matchedV);
     }
   }
-  return ret;
+  return matching;
 }

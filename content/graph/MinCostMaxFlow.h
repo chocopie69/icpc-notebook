@@ -14,81 +14,81 @@
 
 const ll INF = numeric_limits<ll>::max() / 4;
 struct MinCostMaxFlow {
-  struct edge {
+  struct Edge {
     int from, to, rev;
     ll cap, cost, flow;
   };
-  int N;
-  vector<vector<edge>> ed;
+  int n;
+  vector<vector<Edge>> adj;
   vector<int> seen;
-  vector<ll> dist, pi;
-  vector<edge *> par;
-  MinCostMaxFlow(int N) : N(N), ed(N), seen(N), dist(N), pi(N), par(N) {}
+  vector<ll> dist, potential;
+  vector<Edge *> parentEdge;
+  MinCostMaxFlow(int n) : n(n), adj(n), seen(n), dist(n), potential(n), parentEdge(n) {}
   void addEdge(int from, int to, ll cap, ll cost) {
     if (from == to) return;
-    ed[from].push_back(edge{from, to, sz(ed[to]), cap, cost, 0});
-    ed[to].push_back(edge{to, from, sz(ed[from]) - 1, 0, -cost, 0});
+    adj[from].push_back(Edge{from, to, sz(adj[to]), cap, cost, 0});
+    adj[to].push_back(Edge{to, from, sz(adj[from]) - 1, 0, -cost, 0});
   }
   void path(int s) {
     fill(all(seen), 0);
     fill(all(dist), INF);
     dist[s] = 0;
-    ll di;
+    ll adjustedDist;
 
-    __gnu_pbds::priority_queue<pair<ll, int>> q;
-    vector<decltype(q)::point_iterator> its(N);
-    q.push({0, s});
+    __gnu_pbds::priority_queue<pair<ll, int>> pq;
+    vector<decltype(pq)::point_iterator> handles(n);
+    pq.push({0, s});
 
-    while (!q.empty()) {
-      s = q.top().second;
-      q.pop();
+    while (!pq.empty()) {
+      s = pq.top().second;
+      pq.pop();
       seen[s] = 1;
-      di = dist[s] + pi[s];
-      for (edge &e : ed[s])
+      adjustedDist = dist[s] + potential[s];
+      for (Edge &e : adj[s])
         if (!seen[e.to]) {
-          ll val = di - pi[e.to] + e.cost;
-          if (e.cap - e.flow > 0 && val < dist[e.to]) {
-            dist[e.to] = val;
-            par[e.to] = &e;
-            if (its[e.to] == q.end())
-              its[e.to] = q.push({-dist[e.to], e.to});
+          ll newDist = adjustedDist - potential[e.to] + e.cost;
+          if (e.cap - e.flow > 0 && newDist < dist[e.to]) {
+            dist[e.to] = newDist;
+            parentEdge[e.to] = &e;
+            if (handles[e.to] == pq.end())
+              handles[e.to] = pq.push({-dist[e.to], e.to});
             else
-              q.modify(its[e.to], {-dist[e.to], e.to});
+              pq.modify(handles[e.to], {-dist[e.to], e.to});
           }
         }
     }
-    for (int i = 0; i < (N); ++i) pi[i] = min(pi[i] + dist[i], INF);
+    for (int i = 0; i < (n); ++i) potential[i] = min(potential[i] + dist[i], INF);
   }
   pair<ll, ll> maxflow(int s, int t) {
-    ll totflow = 0, totcost = 0;
+    ll totalFlow = 0, totalCost = 0;
     while (path(s), seen[t]) {
-      ll fl = INF;
-      for (edge *x = par[t]; x; x = par[x->from])
-        fl = min(fl, x->cap - x->flow);
+      ll pushed = INF;
+      for (Edge *edge = parentEdge[t]; edge; edge = parentEdge[edge->from])
+        pushed = min(pushed, edge->cap - edge->flow);
 
-      totflow += fl;
-      for (edge *x = par[t]; x; x = par[x->from]) {
-        x->flow += fl;
-        ed[x->to][x->rev].flow -= fl;
+      totalFlow += pushed;
+      for (Edge *edge = parentEdge[t]; edge; edge = parentEdge[edge->from]) {
+        edge->flow += pushed;
+        adj[edge->to][edge->rev].flow -= pushed;
       }
     }
-    for (int i = 0; i < (N); ++i)
-      for (edge &e : ed[i]) totcost += e.cost * e.flow;
-    return {totflow, totcost / 2};
+    for (int i = 0; i < (n); ++i)
+      for (Edge &e : adj[i]) totalCost += e.cost * e.flow;
+    return {totalFlow, totalCost / 2};
   }
   // If some costs can be negative, call this before maxflow:
   void setpi(int s) { // (otherwise, leave this out)
-    fill(all(pi), INF);
-    pi[s] = 0;
-    int it = N, ch = 1;
-    ll v;
-    while (ch-- && it--)
-      for (int i = 0; i < (N); ++i)
-        if (pi[i] != INF)
-          for (edge &e : ed[i])
+    fill(all(potential), INF);
+    potential[s] = 0;
+    int roundsLeft = n, changed = 1;
+    ll newPotential;
+    while (changed-- && roundsLeft--)
+      for (int i = 0; i < (n); ++i)
+        if (potential[i] != INF)
+          for (Edge &e : adj[i])
             if (e.cap)
-              if ((v = pi[i] + e.cost) < pi[e.to])
-                pi[e.to] = v, ch = 1;
-    assert(it >= 0); // negative cost cycle
+              if ((newPotential = potential[i] + e.cost) < potential[e.to])
+                potential[e.to] = newPotential, changed = 1;
+    assert(roundsLeft >= 0); // negative cost cycle
   }
 };

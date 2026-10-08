@@ -3,59 +3,40 @@
  * Date: 2019-12-28
  * License: CC0
  * Source: https://github.com/hoke-t/tamu-kactl/blob/master/content/data-structures/MoQueries.h
- * Description: Answer interval or tree path queries by finding an approximate TSP through the queries,
- * and moving from one query to the next by adding/removing points at the ends.
- * If values are on tree edges, change \texttt{step} to add/remove the edge $(a, c)$ and remove the initial \texttt{add} call (but keep \texttt{in}).
- * Time: O(N \sqrt Q)
- * Status: stress-tested
+ * Description: Offline queries on 0-based, half-open intervals $[l,r)$.
+ * Fill in add, del and calc; start their state empty. side is 0 for the left
+ * end and 1 for the right end. No array updates between queries.
+ * Answers are returned in input order. For tree paths, see MoTree.h instead.
+ * Useful when an answer can be maintained as either interval end moves one position. Sorting
+ * queries reduces pointer travel; add/del update shared state and calc reads it. Choose
+ * blockSize near N/sqrt(Q), at least 1. Fill the placeholders for the chosen statistic before
+ * using this template.
+ * Usage: auto answers=mo({{0,3},{1,5}},350);
+ * // Fill add/del/calc; [0,3) means positions 0,1,2.
+ * Time: $O(Q\log Q + N\sqrt Q)$ with $O(1)$ add/del/calc and blockSize about $N/\sqrt Q$.
  */
 #pragma once
-void add(int ind, int end) { ... } // add a[ind] (end = 0 or 1)
-void del(int ind, int end) { ... } // remove a[ind]
-int calc(){...}                    // compute current answer
-vector<int> mo(vector<pii> Q) {
-  int L = 0, R = 0, blk = 350; // ~N/sqrt(Q)
-  vector<int> s(sz(Q)), res = s;
-#define K(x) pii(x.first/blk, x.second ^ -(x.first/blk & 1))
-  iota(all(s), 0);
-  sort(all(s), [&](int s, int t) { return K(Q[s]) < K(Q[t]); });
-  for (int qi : s) {
-    pii q = Q[qi];
-    while (L > q.first) add(--L, 0);
-    while (R < q.second) add(R++, 1);
-    while (L < q.first) del(L++, 0);
-    while (R > q.second) del(--R, 1);
-    res[qi] = calc();
+void add(int pos, int side) { ... } // add a[pos]
+void del(int pos, int side) { ... } // remove a[pos]
+int calc(){...}                     // current answer
+vector<int> mo(vector<pii> queries, int blockSize = 350) {
+  int left = 0, right = 0;
+  vector<int> order(sz(queries)), answers(sz(queries));
+  iota(all(order), 0);
+  sort(all(order), [&](int queryA, int queryB) {
+    int blockA = queries[queryA].first / blockSize;
+    int blockB = queries[queryB].first / blockSize;
+    if (blockA != blockB) return blockA < blockB;
+    if (blockA & 1) return queries[queryA].second > queries[queryB].second;
+    return queries[queryA].second < queries[queryB].second;
+  });
+  for (int queryId : order) {
+    auto [queryLeft, queryRight] = queries[queryId];
+    while (left > queryLeft) add(--left, 0);
+    while (right < queryRight) add(right++, 1);
+    while (left < queryLeft) del(left++, 0);
+    while (right > queryRight) del(--right, 1);
+    answers[queryId] = calc();
   }
-  return res;
-}
-vector<int> moTree(vector<array<int, 2>> Q, vector<vector<int>> &ed, int root = 0) {
-  int N = sz(ed), pos[2] = {}, blk = 350; // ~N/sqrt(Q)
-  vector<int> s(sz(Q)), res = s, I(N), L(N), R(N), in(N), par(N);
-  add(0, 0), in[0] = 1;
-  auto dfs = [&](int x, int p, int dep, auto &f) -> void {
-    par[x] = p;
-    L[x] = N;
-    if (dep) I[x] = N++;
-    for (int y : ed[x])
-      if (y != p) f(y, x, !dep, f);
-    if (!dep) I[x] = N++;
-    R[x] = N;
-  };
-  dfs(root, -1, 0, dfs);
-#define K(x) pii(I[x[0]] / blk, I[x[1]] ^ -(I[x[0]] / blk & 1))
-  iota(all(s), 0);
-  sort(all(s), [&](int s, int t) { return K(Q[s]) < K(Q[t]); });
-  for (int qi : s)
-    for (int end = 0; end < (2); ++end) {
-      int &a = pos[end], b = Q[qi][end], i = 0;
-#define step(c) { if (in[c]) { del(a, end); in[a] = 0; } \
-                  else { add(c, end); in[c] = 1; } a = c; }
-      while (!(L[b] <= L[a] && R[a] <= R[b]))
-        I[i++] = b, b = par[b];
-      while (a != b) step(par[a]);
-      while (i--) step(I[i]);
-      if (end) res[qi] = calc();
-    }
-  return res;
+  return answers;
 }

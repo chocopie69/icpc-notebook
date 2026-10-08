@@ -277,7 +277,7 @@
 	\setboolean{hasleftcaption}{false}
 	\myneedspace{5\baselineskip}
 	\penalty-100
-	\par{\Large\bfseries\kactldisplayname{#2}\par}
+	\par{\Large\bfseries\kactldisplayname{#2}\par}\nobreak
 	\immediate\write18{rm -f \@builddir/kactl.tmp} % Don't include old kactl.tmp on failure.
 	\immediate\write18{python3 content/tex/preprocessor.py -i "\@kactldir/#2" -o \@builddir/kactl.tmp #1}
 	\immediate\input{\@builddir/kactl.tmp}
@@ -363,9 +363,9 @@
 	\ifthenelse{\boolean{hasusage}}{\codeheader{Usage}{\@defusage}}{}
 	\ifthenelse{\boolean{hasmemory}}{\codeheader{Memory}{\@defmemory}}{}
 	\ifthenelse{\boolean{hastime}}{\codeheader{Time}{\@deftime}}{}
-	\ifthenelse{\boolean{hasleftcaption}}{\vspace{0pt}}{\vspace{-5pt}}
-	\tiny
-	\texttt{\@leftcaption} \hfill \@rightcaption
+	\ifthenelse{\boolean{hasleftcaption}}{
+		{\par\noindent\tiny\texttt{\@leftcaption}\par}
+	}{}
 }
 
 \newcommand{\bigo}[1] {\ensuremath{\mathcal{O} \left( #1 \right)}}
