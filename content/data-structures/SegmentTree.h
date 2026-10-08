@@ -5,9 +5,15 @@
  * Source: folklore
  * Description: Point assignment and range maximum. Positions are 1-based; query(l,r) is inclusive. Initially
  * every position equals initialValue. To change the aggregate, edit T, merge and its identity
- * unit; use a wider T if needed.
+ * unit; use a wider T if needed. firstAtLeast(l,r,val) walks left first to find the smallest
+ * position in [l,r] with value>=val, or -1 if absent. A node with maximum<val is skipped.
+ * This search relies on the maximum aggregate; changing merge also requires changing the walk.
  * Usage: SegTree seg(5,0); seg.update(3,7);
  * int best=seg.query(2,4); // 7; positions 2,3,4
+ * int pos=seg.firstAtLeast(2,5,6); // 3; first value >=6 in [2,5]
+ * // Find the first available capacity >=need, then consume it:
+ * int need=4; pos=seg.firstAtLeast(1,5,need);
+ * if (pos!=-1) seg.update(pos,seg.query(pos,pos)-need);
  * Time: $O(\log N)$ per operation; $O(N)$ memory.
  */
 #pragma once
@@ -52,5 +58,17 @@ struct SegTree {
   T query(int l, int r) const {
     if (n == 0 || l > r) return unit;
     return query(1, 1, n, l, r);
+  }
+  int firstAtLeast(int id, int lo, int hi, int l, int r, T val) const {
+    if (r < lo || hi < l || seg[id] < val) return -1; // No valid position here.
+    if (lo == hi) return lo;
+    int mid = (lo + hi) / 2;
+    int pos = firstAtLeast(id * 2, lo, mid, l, r, val);
+    if (pos != -1) return pos; // Left first gives the smallest position.
+    return firstAtLeast(id * 2 + 1, mid + 1, hi, l, r, val);
+  }
+  int firstAtLeast(int l, int r, T val) const {
+    if (n == 0 || l > r) return -1;
+    return firstAtLeast(1, 1, n, l, r, val);
   }
 };

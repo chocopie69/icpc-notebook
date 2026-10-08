@@ -1,7 +1,7 @@
 # KACTL
 
 This repo hosts KACTL, [KTH](https://en.wikipedia.org/wiki/KTH_Royal_Institute_of_Technology)'s ICPC team reference document.
-This personalized edition consists of 25 pages including the cover, for use in ICPC-style programming competitions.
+This personalized edition consists of 26 pages including the cover, for use in ICPC-style programming competitions.
 
 See [kactl.pdf](./kactl.pdf) for the final, browsable version, and [content/](./content/) for raw source code.
 

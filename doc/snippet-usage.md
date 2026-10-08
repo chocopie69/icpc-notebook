@@ -130,3 +130,9 @@ Centroid decomposition is now a reusable path-counting skeleton with three marke
 ## Contest comparator
 
 Added `content/contest/Comparator.cpp` immediately after the contest template, copied from `D:/Coding/CP-Training/Useful Stuffs/Comparator/comparator.cpp`. Only whitespace formatting is changed in the code; original identifiers, random generator, conditions, commands, braces, and return values are preserved. Notebook description/usage notes explain the Windows file setup. The original source is unchanged.
+
+## Pointer trie and tree walking
+
+Prime Sieve (`Eratosthenes.h`) is excluded from the PDF; Linear Sieve and Fast Prime Sieve remain. `Trie.h` adapts the VNOI pointer-based lowercase trie, with readable names, duplicate-aware insertion/deletion, exact lookup, prefix counts, and node cleanup. Root prefix counts include all copies; copying is disabled to preserve pointer ownership.
+
+The existing maximum segment tree adds `firstAtLeast(l,r,val)`, an O(log N) left-first walk returning the first qualifying index or -1. The search depends on maximum aggregation. Fenwick's existing O(log N) `lowerBound` walk is explained with kth-frequency and suffix-target examples; point values must remain nonnegative. Both headings identify their walk operations. No duplicate Fenwick search implementation was added.
