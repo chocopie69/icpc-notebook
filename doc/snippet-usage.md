@@ -4,7 +4,7 @@ Descriptions and full usage notes cover the active algorithm entries. Simple sni
 
 Notes explain when to use each snippet, indexing, input assumptions, return values, changes to input data, and a concrete call or an explicit customization recipe. Familiar contest building blocks are included, as requested.
 
-Tree Mo follows the linked example with arrays and free functions. Its header states value compression, capacities, setup order, and query IDs.
+Tree Mo follows upstream KACTL's direct endpoint walking. Its header states inclusive paths, root/indexing conventions, callback setup, state reset, and adaptation to edge values.
 
 Excluded from the current PDF: Aho-Corasick, 2D prefix sums, directed MST, the Techniques appendix, Shell setup, Vim setup, and Code checksum. Dependency captions are retained; snippet hashes and line counts are hidden. Data structures follows Combinatorial.
 
@@ -26,7 +26,7 @@ Excluded from the current PDF: Aho-Corasick, 2D prefix sums, directed MST, the T
 | [FenwickTree2d.h](../content/data-structures/FenwickTree2d.h) | Expanded description and usage |
 | [RMQ.h](../content/data-structures/RMQ.h) | Concise description; full usage |
 | [MoQueries.h](../content/data-structures/MoQueries.h) | Expanded description and usage |
-| [MoTree.h](../content/data-structures/MoTree.h) | Expanded; array-based rewrite |
+| [MoTree.h](../content/data-structures/MoTree.h) | Expanded; KACTL endpoint-walking implementation |
 | [Point.h](../content/geometry/Point.h) | Concise description; full usage |
 | [lineDistance.h](../content/geometry/lineDistance.h) | Concise description; full usage |
 | [SegmentDistance.h](../content/geometry/SegmentDistance.h) | Concise description; full usage |
@@ -141,6 +141,21 @@ The existing maximum segment tree adds `firstAtLeast(l,r,val)`, an O(log N) left
 
 Replaced the active 0-1 BFS snippet with `Dial.h`, following Codeforces entry 88408. The implementation uses K+1 cyclic queues, an actual-distance cursor, stale-entry checks, and a pending-entry count. Weights must be integers in [0,K]; zero-weight edges and K=0 are supported. Distances use ll with LLONG_MAX for unreachable vertices. The original ZeroOneBFS.h remains available as source but is excluded from the PDF.
 
-Both Mo variants now use Hilbert ordering from Codeforces entry 61203. A shared HilbertOrder.h helper is printed immediately before them and appears in their dependency captions. Each key is computed once before sorting, with automatic coordinate bits strictly covering the largest endpoint (including each inclusive r and the tree Euler timer). Block-size parameters and tuning are removed. mo(queries) still returns answers in input order; tree toggles and extra-LCA handling are unchanged. Descriptions, usage and complexity reflect the new ordering. Published benchmarks demonstrate practical speedups, but performance remains query-dependent and these notebook snippets were not locally benchmarked.
+There are exactly two Mo sections. MoQueries.h includes the Hilbert-order helper inline, followed by 1-based inclusive [l,r] array Mo. The standalone HilbertOrder.h source remains available but is excluded from the PDF and is no longer a dependency of either Mo snippet.
 
-Both Mo snippets use inclusive [l,r]. Array Mo is 0-based, starts at [0,-1], adds with ++right and removes with right--. Tree Mo remains 1-based on the Euler tour, with its existing inclusive pointer moves; comments explicitly document both endpoints and single-vertex paths. Usage examples and Hilbert notes follow the same convention.
+MoTree.h adapts upstream KACTL's direct tree-endpoint walking and snake sorting. It uses a single alternating-depth DFS with inclusive subtree bounds, reuses ranks as a climb stack after sorting, and has no LCA table or twice-entered Euler array. Root initialization uses the chosen root, including the initial active vertex and both endpoint positions. Callbacks add/del/calc are generic, receive the endpoint side, and require empty shared state at the start. Paths include both vertices, and answers are returned in input order. Automatic block size is near N/sqrt(Q); vertices are 1..N with adjacency size N+1 and root defaulting to 1. README, titles, descriptions, examples and complexity match the two implementations.
+
+Both Mo snippets use 1-based array positions / tree vertices and inclusive endpoints. Array Mo starts empty at [1,0]; tree DFS ranks, subtree bounds and the reused climb stack start at 1. Query/answer vectors keep their ordinary C++ input order. Titles are Mo's Algorithm on Arrays and Mo's Algorithm on Trees. Mathematics excludes Quadrilaterals, Trigonometry and Series, and removes only the sum of the first n positive integers; geometric and square/cube/fourth-power sums remain.
+
+## Iterative segment tree
+
+Added IterativeSegmentTree.h from upstream KACTL's compact 2N iterative maximum tree, printed alongside the existing recursive tree and walk. Its public interface uses positions 1..N and inclusive query(l,r). update shifts positions by N-1; the query shifts both endpoints by N-1 and uses closed-boundary traversal. Names and formatting follow the notebook; two ordered accumulators preserve the upstream support for noncommutative aggregates. Notes explain point assignment, identity, initial values, and adapting the aggregate.
+
+
+## Persistent structures and 26-page budget
+
+Added PersistentSegmentTree.h: path-copying, point assignment and inclusive range maximum, with zero-based version IDs and 1-based positions. New versions can branch from any existing version; a uniform null subtree avoids an initial full build.
+
+Added PersistentFenwick.h: the VNOI article's timestamped 2D BIT, with 1-based coordinates, inclusive historical rectangle sums and same-time update coalescing. Updates must arrive in nondecreasing time order; this structure does not branch. History lookup compares timestamps only, avoiding a sentinel bound on values. Notes state dense-grid memory cost and how to reduce it to one dimension.
+
+Kept the PDF at 26 pages by shortening descriptions of centroid decomposition, interval/tree Mo, SOS DP, weighted/general matching, iterative segment tree, custom hash map and Dial; removed repeated centroid comments. Usage examples and customization hooks remain. No algorithms were removed and no font-size reduction was used.

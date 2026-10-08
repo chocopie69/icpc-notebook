@@ -1,13 +1,11 @@
 /**
  * Author: Personal notebook, adapted from Yukuk's 1-K BFS tutorial
  * Source: https://codeforces.com/blog/entry/88408
- * Description: Single-source shortest paths with integer edge weights in [0,K], for small K.
- * Uses K+1 cyclic buckets instead of a priority queue. current is the actual distance;
- * only the bucket index is taken modulo K+1. Skip stale entries after a shorter path is found.
- * Zero-weight edges are supported, including K=0. K=1 also handles every 0-1 BFS problem.
- * Vertices may be 0-based or 1-based; allocate adj accordingly. Unreachable distances are
- * \texttt{LLONG\_MAX}. K must bound every edge weight; negative weights are not supported.
- * Large K makes scanning buckets slow and consumes memory; use heap Dijkstra in that case.
+ * Description: Single-source shortest paths for integer weights in [0,K], with small K.
+ * Use K+1 cyclic buckets; current is the real distance, only bucket indices use modulo.
+ * Skip stale entries. K=0 and zero-weight edges work; K=1 covers 0-1 BFS.
+ * Allocate adj for your indexing; unreachable distances are 	exttt{LLONG\_MAX}.
+ * Negative weights are invalid. Large K needs too much scanning/memory; use heap Dijkstra.
  * Usage: vector<vector<pii>> adj(n+1); // {neighbor,weight}, weights 0..9
  * adj[u].push_back({v,3}); // add reverse edge too if undirected
  * auto dist=dial(adj,1,9); // source=1, K=9

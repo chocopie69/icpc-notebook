@@ -3,16 +3,10 @@
  * Date: 2026-07-09
  * License: CC0
  * Source: https://github.com/scipy/scipy/blob/main/scipy/optimize/rectangular_lsap/rectangular_lsap.cpp
- * Description: Given a weighted bipartite graph, matches every node on
- * the left with a node on the right such that no
- * nodes are in two matchings and the sum of the edge weights is minimal. Takes
- * cost[N][M], where cost[i][j] = cost for L[i] to be matched with R[j], and
- * returns (min cost, match), where L[i] is matched with
- * R[match[i]]. Negate costs for max cost. Requires $N \le M$.
- * Use to assign each left item to a distinct right item. Rows/columns are 0-based; every row has
- * the same length and rows<=columns. Missing edges need a sufficiently large cost, followed by
- * checking none was chosen. Use ll when total costs may exceed int. This minimizes total cost,
- * not matching cardinality.
+ * Description: Minimum-cost assignment of every left vertex to a distinct right vertex.
+ * cost is a rectangular 0-based N*M matrix with N<=M; returns {totalCost,match}, where
+ * match[i] is the assigned column. Negate costs for maximum cost. Missing edges need a large
+ * cost and a check afterward. Use ll if totals may exceed int.
  * Time: O(N^2M)
  * Status: Tested on kattis:cordonbleu, kattis:engaging, stress-tested
  * Usage: vector<vector<ll>> costs={{3,1,8},{2,4,6}};

@@ -3,12 +3,9 @@
  * Date: 2016-12-09
  * License: CC0
  * Source: http://www.mimuw.edu.pl/~mucha/pub/mucha_sankowski_focs04.pdf
- * Description: Matching for general graphs.
- * Fails with probability $N / mod$.
- * Finds a maximum-cardinality matching in an undirected, possibly non-bipartite graph. Vertices
- * are 0..n-1, each edge listed once, with no self-loops. Returned pairs are matched vertices.
- * Uses a randomized Tutte matrix and modular matrix inversion, so a result can be wrong with the
- * stated probability. It does not optimize edge weights.
+ * Description: Maximum-cardinality matching in an undirected general graph (not weighted).
+ * Vertices are 0..n-1; list each edge once, with no self-loops. Returns matched pairs.
+ * Randomized Tutte-matrix inversion can fail with probability $N/mod$.
  * Time: O(N^3)
  * Status: not very well tested
  * Usage: vector<pii> edges={{0,1},{1,2},{2,0}};

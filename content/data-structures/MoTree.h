@@ -1,99 +1,76 @@
 /**
- * Author: 404 Not Found
- * Date: 2026-10-08
- * Source: animeshf, https://codeforces.com/blog/entry/43230; https://ideone.com/6NVoPD; https://codeforces.com/blog/entry/61203
- * Description: Offline distinct-value counts on tree paths, using the example's
- * arrays, DFS, LCA and vertex toggle, with Hilbert-sorted queries. Vertices are 1..n;
- * compress value[u] to 1..n first. Set MAXN and LOG for the largest input.
- * All Euler intervals are 1-based and inclusive [left,right]; both endpoints are included.
- * Each vertex appears twice in euler: at tin[u] and tout[u]. A vertex contributes
- * only when it occurs once in the current interval. For tin[u] <= tin[v],
- * w = LCA(u,v): use [tin[u],tin[v]] if w=u; otherwise use [tout[u],tin[v]]
- * and toggle w separately before and after reading the answer.
- * Change check and the answer assignment for another statistic on the active
- * vertices. This does not preserve the order of vertices along the path.
- * Hilbert keys use the converted Euler endpoints, with enough bits to include timer=2n.
- * Keys are computed once before sorting; no block size is needed. Query IDs must be 0..Q-1.
- * Usage:
- *  // Fill n, adj[1..n], and compressed value[1..n].
- *  timer = 0; h[1] = 0; dfs(1, 1);
- *  vector<Query> queries;
- *  queries.push_back(makeQuery(u, v, sz(queries))); // repeat for each path
- *  auto answers = compute(queries); // answers in input order
- *  // makeQuery(u,u,id) includes u once; both path endpoints are always included.
- *  // For another test case, clear adj[1..n] before adding its edges.
- * Time: $O(N\log N+Q\log N+Q\log Q+N\sqrt Q)$; $O(N\log N+Q)$ memory.
+ * Author: Simon Lindholm, adapted to the notebook style
+ * License: CC0
+ * Source: https://github.com/kth-competitive-programming/kactl/blob/main/content/data-structures/MoQueries.h
+ * Description: KACTL's direct endpoint walking with alternating DFS order and snake sorting.
+ * Inclusive vertex paths on 1..N; adj has size N+1, both edge directions, and default root=1.
+ * Fill add/del/calc; side=0/1 selects the endpoint. Begin with empty state; reset before reuse.
+ * No value updates between queries. rank becomes a climb stack after sorting; no LCA table is needed.
+ * Both endpoints are included, even for (u,u). Answers follow input order. DFS stack can be linear.
+ * For edge values, process the traversed edge in step and omit add(root,0), keeping active[root].
+ * Block size is near N/sqrt(Q); adjust if needed.
+ * Usage: // Fill add/del/calc for the desired statistic (e.g. distinct vertex values).
+ * vector<pii> queries={{u,v},{u,u}};
+ * auto answers=moTree(queries,adj); // 1-based vertices, both path endpoints included
+ * // For another root in 1..N: moTree(queries,adj,root).
+ * // Compress values first if callbacks index a frequency array by value.
+ * Time: $O(N+Q\log Q+N\sqrt Q)$ with $O(1)$ add/del/calc; $O(N+Q)$ memory.
  */
 #pragma once
-#include "HilbertOrder.h"
-const int MAXN = 100005, LOG = 20;
-int n, timer, distinct;
-int value[MAXN], h[MAXN], up[MAXN][LOG];
-int tin[MAXN], tout[MAXN], euler[2 * MAXN], freq[MAXN];
-bool active[MAXN];
-vector<int> adj[MAXN];
-struct Query {
-  int left, right, id, extraLca;
-  ull key = 0;
-  bool operator<(const Query &other) const { return key < other.key; }
-};
-void dfs(int u, int parent) {
-  tin[u] = ++timer;
-  euler[timer] = u;
-  up[u][0] = parent;
-  for (int k = 1; k < LOG; k++) up[u][k] = up[up[u][k - 1]][k - 1];
-  for (int v : adj[u])
-    if (v != parent) {
-      h[v] = h[u] + 1;
-      dfs(v, u);
+void add(int u, int side) { ... } // Add vertex u at this end of the path.
+void del(int u, int side) { ... } // Remove vertex u at this end of the path.
+int calc(){...}                   // Current path answer.
+vector<int> moTree(const vector<pii> &queries, const vector<vector<int>> &adj, int root = 1) {
+  if (queries.empty()) return {};
+  int n = sz(adj) - 1, timer = 1, pos[2] = {root, root};
+  int blockSize = max(1, (int)(n / sqrt(sz(queries))));
+  vector<int> order(sz(queries)), answers(sz(queries));
+  vector<int> rank(n + 1), tin(n + 1), tout(n + 1), parent(n + 1);
+  vector<bool> active(n + 1);
+  add(root, 0);
+  active[root] = true;
+  auto dfs = [&](int u, int p, bool oddDepth, auto &self) -> void {
+    parent[u] = p;
+    tin[u] = timer;
+    if (oddDepth) rank[u] = timer++;
+    for (int v : adj[u])
+      if (v != p) self(v, u, !oddDepth, self);
+    if (!oddDepth) rank[u] = timer++;
+    tout[u] = timer - 1; // Inclusive subtree bounds in the alternating DFS order.
+  };
+  dfs(root, 0, false, dfs);
+  iota(all(order), 0);
+  sort(all(order), [&](int a, int b) {
+    int blockA = rank[queries[a].first] / blockSize;
+    int blockB = rank[queries[b].first] / blockSize;
+    if (blockA != blockB) return blockA < blockB;
+    int rightA = rank[queries[a].second], rightB = rank[queries[b].second];
+    return blockA & 1 ? rightA > rightB : rightA < rightB;
+  });
+  for (int id : order) {
+    for (int side = 0; side < 2; side++) {
+      int &current = pos[side];
+      int target = side == 0 ? queries[id].first : queries[id].second;
+      int climbed = 0;
+      auto step = [&](int next) {
+        if (active[next]) {
+          del(current, side);
+          active[current] = false;
+        } else {
+          add(next, side);
+          active[next] = true;
+        }
+        current = next;
+      };
+      // Climb target until it is an ancestor of current; save its descent path.
+      while (!(tin[target] <= tin[current] && tout[current] <= tout[target])) {
+        rank[++climbed] = target; // DFS ranks are no longer needed after sorting.
+        target = parent[target];
+      }
+      while (current != target) step(parent[current]);
+      while (climbed) step(rank[climbed--]);
     }
-  tout[u] = ++timer;
-  euler[timer] = u;
-}
-int lca(int u, int v) {
-  if (h[u] < h[v]) swap(u, v);
-  for (int k = LOG - 1; k >= 0; k--)
-    if (h[u] - (1 << k) >= h[v]) u = up[u][k];
-  if (u == v) return u;
-  for (int k = LOG - 1; k >= 0; k--)
-    if (up[u][k] != up[v][k]) {
-      u = up[u][k];
-      v = up[v][k];
-    }
-  return up[u][0];
-}
-Query makeQuery(int u, int v, int id) {
-  if (tin[u] > tin[v]) swap(u, v);
-  int w = lca(u, v);
-  if (w == u) return {tin[u], tin[v], id, 0};
-  return {tout[u], tin[v], id, w};
-}
-void check(int u) {
-  if (active[u]) {
-    if (--freq[value[u]] == 0) distinct--;
-  } else {
-    if (freq[value[u]]++ == 0) distinct++;
-  }
-  active[u] ^= 1;
-}
-vector<int> compute(vector<Query> &queries) {
-  int bits = 0;
-  while ((1LL << bits) <= timer) bits++;
-  for (Query &query : queries) query.key = hilbertOrder(query.left, query.right, bits);
-  sort(all(queries));
-  fill(freq, freq + n + 1, 0);
-  fill(active, active + n + 1, false);
-  distinct = 0;
-  int left = 1, right = 0; // Initially empty; maintained Euler interval is [left,right].
-  vector<int> answers(sz(queries));
-  for (Query query : queries) {
-    while (left > query.left) check(euler[--left]);
-    while (right < query.right) check(euler[++right]);
-    while (left < query.left) check(euler[left++]);
-    while (right > query.right) check(euler[right--]);
-    if (query.extraLca) check(query.extraLca);
-    answers[query.id] = distinct;
-    if (query.extraLca) check(query.extraLca);
+    answers[id] = calc();
   }
   return answers;
 }

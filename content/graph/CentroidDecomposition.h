@@ -1,20 +1,14 @@
 /**
  * Author: Personal notebook, adapted from Cao Thanh Hau / VNOI Wiki
  * Source: https://wiki.vnoi.info/algo/graph-theory/centroid-decomposition.md
- * Description: Path-counting skeleton; the working example counts unordered distinct-vertex
- * pairs at exactly k edges in an unweighted tree. Customize the CHANGE blocks; keep subtree
- * sizes, centroid search, and solve unchanged. Each state describes a centroid-to-vertex path.
- * Query a whole child BEFORE inserting it: stored states belong only to the centroid and
- * earlier children. Paths inside one child are counted recursively, so no path is counted twice.
- * For edge sums, use weighted adjacency and ll states; XOR uses xor instead of addition.
- * Length ranges replace frequency lookup with a Fenwick range query (an extra log factor).
- * Vertex sums include the centroid in both states: match against k+value[centroid]-state.
- * Reset the accumulator after EACH centroid; clear only touched entries or undo its updates.
- * This version collects all states without pruning. Prune only if your path state cannot
- * become valid again deeper in the tree (negative weights invalidate sum-based pruning).
- * Root defaults to 1; pass 0 for 0-based vertices. Adjacency is preserved; construct a fresh
- * object for each run. DFS may use linear stack depth. Single-vertex paths are excluded;
- * count them separately if needed. Ordered pairs need separate treatment for directional rules.
+ * Description: Path-counting skeleton; example counts unordered distinct pairs at exactly k edges.
+ * Customize the CHANGE blocks: state/storage, initial/extended state, query/insert/reset.
+ * Query a whole child BEFORE inserting it; only the centroid and earlier children are stored.
+ * Reset touched entries after each centroid. Recurse to count paths inside one child.
+ * For vertex sums, match k+value[centroid]-state; for edge sums adapt adjacency/state extension.
+ * Length ranges need a Fenwick range query; XOR needs mask states. Prune only if deeper states
+ * cannot become valid again. Root defaults to 1 (pass 0 if needed); use a fresh object per run.
+ * Single-vertex paths are excluded. Recursive DFS may have linear stack depth.
  * Usage: CentroidDecomposition tree(adj,k); // adj: vector<vector<int>>, both directions
  * ll answer=tree.solve(); // 1-based vertices; exact-k example
  * // For vertices 0..n-1: tree.solve(0).
@@ -24,18 +18,18 @@
  */
 #pragma once
 struct CentroidDecomposition {
-  // CHANGE 1: problem parameters, path state, and accumulator storage.
-  using State = int; // Example: depth. Use ll, a mask, or a struct if needed.
+  // CHANGE 1: state, parameters, storage.
+  using State = int; // Depth; change to ll, mask, or struct.
   int k;
-  vector<vector<int>> adj; // For edge weights, also adapt the neighbor loops.
+  vector<vector<int>> adj; // Adapt for weighted edges.
   vector<int> subtreeSize, freq, touched;
   vector<bool> removed;
   CentroidDecomposition(const vector<vector<int>> &graph, int length)
       : k(length), adj(graph), subtreeSize(sz(graph)), freq(sz(graph)), removed(sz(graph)) {}
-  // CHANGE 2: state at the centroid, then how one more vertex/edge extends it.
+  // CHANGE 2: initial state and extension.
   State initialState(int centroid) { return 0; }
   State extendState(State state, int v) { return state + 1; }
-  // CHANGE 3: match against earlier children, insert a state, and reset storage.
+  // CHANGE 3: match, insert, reset.
   ll queryState(State state, int centroid) {
     ll need = (ll)k - state; // Vertex sums: k + value[centroid] - state.
     return 0 <= need && need < sz(freq) ? freq[need] : 0;
@@ -46,7 +40,7 @@ struct CentroidDecomposition {
   }
   void clearStates() {
     for (int state : touched) freq[state] = 0;
-    touched.clear(); // For a map: clear it; for a Fenwick tree: undo updates.
+    touched.clear(); // Map: clear; Fenwick: undo updates.
   }
   int countChild(int u, int parent) {
     subtreeSize[u] = 1;
@@ -61,7 +55,6 @@ struct CentroidDecomposition {
     return u;
   }
   void collectStates(int u, int parent, State state, vector<State> &states) {
-    // Optional problem-specific pruning goes here; none is needed for correctness.
     states.push_back(state);
     for (int v : adj[u])
       if (v != parent && !removed[v]) collectStates(v, u, extendState(state, v), states);
@@ -69,7 +62,7 @@ struct CentroidDecomposition {
   ll countPaths(int centroid) {
     ll answer = 0;
     State start = initialState(centroid);
-    addState(start); // Allows paths with one endpoint at the centroid.
+    addState(start); // Include the centroid.
     for (int v : adj[centroid]) {
       if (removed[v]) continue;
       vector<State> states;
@@ -77,7 +70,7 @@ struct CentroidDecomposition {
       for (State state : states) answer += queryState(state, centroid);
       for (State state : states) addState(state); // Keep these two loops separate!
     }
-    clearStates(); // Must happen before recursing into any component.
+    clearStates(); // Reset before recursion.
     return answer;
   }
   ll solve(int u = 1) {

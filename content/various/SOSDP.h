@@ -1,13 +1,11 @@
 /**
  * Author: Personal notebook
  * Source: https://usaco.guide/plat/dp-sos
- * Description: In-place sums over subsets or supersets of each mask, including itself and mask 0.
- * dp must have exactly $2^B$ entries, with B>=0. Start from a copy of the original values for
- * each transform. For frequencies, subsetSOS gives the count of input masks contained in mask;
- * subset[full XOR mask] counts inputs disjoint from mask. The inverse restores the original
- * array by subtracting instead of adding. Intermediate sums must fit ll; for modular sums,
- * normalize each addition/subtraction. Min/max aggregation is possible but has no such inverse.
- * Keep the bit loop outside the mask loop so every value is included exactly once.
+ * Description: In-place sums over subsets/supersets, including the mask itself and zero.
+ * dp has exactly $2^B$ entries (B>=0); copy the input separately for each transform.
+ * For frequencies, sub[full XOR mask] counts disjoint input masks. inverse subtracts to restore
+ * input. Keep the bit loop outermost. Intermediate sums must fit ll; normalize modular results.
+ * Min/max variants have no subtraction inverse.
  * Usage: vector<ll> freq={1,2,3,4}; // masks 0,1,2,3
  * auto sub=freq; subsetSOS(sub); // {1,3,4,10}
  * auto super=freq; supersetSOS(super); // {10,6,7,4}

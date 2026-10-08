@@ -83,12 +83,13 @@ State names describe their roles, such as `parent`, `matchRight`, `extraLca`,
 `prefixHash`, `coeff`, and `pivotRow`. Standard vertex names, indices and point
 coordinates stay compact. LCA's DFS entry order is stored in `tin`.
 
-Mo is split into two snippets: `mo` handles 0-based, inclusive array intervals `[l,r]`,
-and `MoTree.h` handles inclusive paths on a 1-based tree. The tree version follows
-the linked example's arrays and free functions: `dfs` builds ancestors and the
-entry/exit Euler tour together, `makeQuery` converts paths, and `compute` answers
-them. Compress values to `1..n` first; edit `check` and the answer assignment for
-other statistics that do not depend on path order.
+Mo has exactly two notebook sections. `MoQueries.h` contains the Hilbert helper and
+`mo` for 1-based, inclusive array intervals `[l,r]`. `MoTree.h` adapts upstream
+KACTL's direct endpoint-walking implementation with snake ordering, automatic block
+size, and no LCA table or twice-entered Euler array. `moTree(queries,adj)` defaults
+to a 1-based tree rooted at 1; adjacency has size N+1 with index 0 unused. Fill the
+`add`, `del`, and `calc` callbacks and reset their shared state before each call.
+Both versions include both endpoints and return answers in input order.
 The notebook excludes all network-flow algorithms; their source files remain in
 the repository alongside the other excluded algorithms.
 
@@ -129,3 +130,8 @@ Everything in `stress-tests` is implicitly CC0, except reference implementations
 The DP section includes SOS subset/superset transforms and inverses. The tree section
 includes centroid decomposition with a nearest-marked-vertex example. Fast Modular,
 Fast Input, and Debugging tricks are excluded from the PDF.
+
+
+Persistent structures include a path-copying maximum segment tree (branching versions)
+and VNOI's timestamped 2D Fenwick tree (chronological updates, historical rectangle sums).
+Both use 1-based inclusive coordinates. Compact descriptions keep the notebook at 26 pages.

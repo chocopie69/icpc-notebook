@@ -1,12 +1,10 @@
 /**
  * Author: Personal notebook; SplitMix64 by Sebastiano Vigna
  * Source: https://prng.di.unimi.it/splitmix64.c
- * Description: Integer-key hash map with a randomized SplitMix64 hash. A per-run seed makes
- * fixed collision attacks harder to construct; collisions can still occur and worst-case
- * time is not guaranteed. Collisions affect speed, not key equality or correctness.
- * The hash and container are separate: the same CustomHash works with unordered\_map.
- * GNU PBDS is required only for the gp hash table below. Values are int; change to ll for
- * larger counts. hashMap[key] inserts zero if absent; find does not insert. Iteration is unsorted.
+ * Description: Integer-key map with randomized SplitMix64: fixed collision attacks are harder,
+ * but worst-case time is not guaranteed. Collisions affect speed, not correctness.
+ * CustomHash also works with unordered\_map; only the displayed container needs GNU PBDS.
+ * Values are int. hashMap[key] inserts zero if absent; find does not insert. Iteration is unsorted.
  * Usage: hashMap[42]++;
  * auto it=hashMap.find(42);
  * if (it!=hashMap.end()) cout << it->second;
