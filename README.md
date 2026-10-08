@@ -83,7 +83,7 @@ State names describe their roles, such as `parent`, `matchRight`, `extraLca`,
 `prefixHash`, `coeff`, and `pivotRow`. Standard vertex names, indices and point
 coordinates stay compact. LCA's DFS entry order is stored in `tin`.
 
-Mo is split into two snippets: `mo` handles 0-based, half-open array intervals,
+Mo is split into two snippets: `mo` handles 0-based, inclusive array intervals `[l,r]`,
 and `MoTree.h` handles inclusive paths on a 1-based tree. The tree version follows
 the linked example's arrays and free functions: `dfs` builds ancestors and the
 entry/exit Euler tour together, `makeQuery` converts paths, and `compute` answers

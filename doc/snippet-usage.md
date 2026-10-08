@@ -136,3 +136,11 @@ Added `content/contest/Comparator.cpp` immediately after the contest template, c
 Prime Sieve (`Eratosthenes.h`) is excluded from the PDF; Linear Sieve and Fast Prime Sieve remain. `Trie.h` adapts the VNOI pointer-based lowercase trie, with readable names, duplicate-aware insertion/deletion, exact lookup, prefix counts, and node cleanup. Root prefix counts include all copies; copying is disabled to preserve pointer ownership.
 
 The existing maximum segment tree adds `firstAtLeast(l,r,val)`, an O(log N) left-first walk returning the first qualifying index or -1. The search depends on maximum aggregation. Fenwick's existing O(log N) `lowerBound` walk is explained with kth-frequency and suffix-target examples; point values must remain nonnegative. Both headings identify their walk operations. No duplicate Fenwick search implementation was added.
+
+## Dial shortest paths
+
+Replaced the active 0-1 BFS snippet with `Dial.h`, following Codeforces entry 88408. The implementation uses K+1 cyclic queues, an actual-distance cursor, stale-entry checks, and a pending-entry count. Weights must be integers in [0,K]; zero-weight edges and K=0 are supported. Distances use ll with LLONG_MAX for unreachable vertices. The original ZeroOneBFS.h remains available as source but is excluded from the PDF.
+
+Both Mo variants now use Hilbert ordering from Codeforces entry 61203. A shared HilbertOrder.h helper is printed immediately before them and appears in their dependency captions. Each key is computed once before sorting, with automatic coordinate bits strictly covering the largest endpoint (including each inclusive r and the tree Euler timer). Block-size parameters and tuning are removed. mo(queries) still returns answers in input order; tree toggles and extra-LCA handling are unchanged. Descriptions, usage and complexity reflect the new ordering. Published benchmarks demonstrate practical speedups, but performance remains query-dependent and these notebook snippets were not locally benchmarked.
+
+Both Mo snippets use inclusive [l,r]. Array Mo is 0-based, starts at [0,-1], adds with ++right and removes with right--. Tree Mo remains 1-based on the Euler tour, with its existing inclusive pointer moves; comments explicitly document both endpoints and single-vertex paths. Usage examples and Hilbert notes follow the same convention.
