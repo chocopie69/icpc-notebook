@@ -6,7 +6,7 @@
  * Modulos can also be removed to get a pure-integer version.
  * Set global mod and normalize entries modulo it. Euclidean row steps work with composite moduli
  * too, unlike elimination requiring inverses. Input must be square and is destroyed. Products
- * before reduction must fit ll; the returned determinant lies in [0,mod).
+ * before reduction must fit ll; use wider products if needed. Result lies in [0,mod).
  * Time: $O(N^3)$
  * Status: bruteforce-tested for N <= 3, mod <= 7
  * Usage: vector<vector<ll>> a={{1,2},{3,4}};

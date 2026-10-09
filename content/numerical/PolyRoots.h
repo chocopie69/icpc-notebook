@@ -7,7 +7,7 @@
  * nonconstant polynomial with nonzero leading coefficient and coefficients in increasing degree
  * order. Choose bounds covering the roots of interest; this implementation may also return
  * candidates outside those bounds. Repeated roots without a sign change are not guaranteed and
- * need separate handling.
+ * need separate handling (test derivative roots with a tolerance). Filter results to your bounds.
  * Usage: auto roots=polyRoots(Poly{{2,-3,1}},-10,10);
  * // approximately {1,2}
  * Time: O(n^2 \log(1/\epsilon))

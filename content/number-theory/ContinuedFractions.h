@@ -12,7 +12,8 @@
  * if $x$ is the root of a degree $2$ polynomial the $a$'s eventually become cyclic.
  * Use to approximate nonnegative real input by a bounded rational. limit>=1 bounds both
  * numerator and denominator, not only the denominator. Returns (p,q). Precision comes from type
- * d; use long double when increasing the limit substantially.
+ * d; use long double when increasing the limit substantially. For negative x, approximate -x
+ * and negate the returned numerator. x must be finite.
  * Time: O(\log N)
  * Status: stress-tested for n <= 300
  * Usage: auto [p,q]=approximate(3.141592653589793,100);

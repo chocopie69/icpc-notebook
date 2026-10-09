@@ -5,7 +5,7 @@
  * dp has exactly $2^B$ entries (B>=0); copy the input separately for each transform.
  * For frequencies, sub[full XOR mask] counts disjoint input masks. inverse subtracts to restore
  * input. Keep the bit loop outermost. Intermediate sums must fit ll; normalize modular results.
- * Min/max variants have no subtraction inverse.
+ * Min/max variants have no subtraction inverse. An empty vector is invalid; B=0 needs one entry.
  * Usage: vector<ll> freq={1,2,3,4}; // masks 0,1,2,3
  * auto sub=freq; subsetSOS(sub); // {1,3,4,10}
  * auto super=freq; supersetSOS(super); // {10,6,7,4}

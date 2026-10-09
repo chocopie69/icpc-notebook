@@ -6,7 +6,7 @@
  * Description: Calculates shortest paths from $s$ in a graph that might have negative edge weights.
  * Unreachable nodes get dist = inf; nodes reachable through negative-weight cycles get dist = -inf.
  * Assumes $V^2 \max |w_i| < \tilde{} 2^{63}$.
- * Use fresh default-initialized nodes for each run. Vertices are 0-based and edges are directed;
+ * Use fresh default-initialized nodes for each run; allocate n+1 for labels 1..n. Edges are directed;
  * add both directions for an undirected graph. prev gives a predecessor only for finite shortest
  * paths. The algorithm sorts edges in place; do not reconstruct paths through negative cycles.
  * Time: O(VE)

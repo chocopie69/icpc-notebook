@@ -7,7 +7,8 @@
  * Customization skeleton for one DP layer. Replace lo/hi with valid split bounds, f with
  * previousLayer[split]+cost(split,index), and store with destination arrays. solve(l,r) covers
  * [l,r). Each index needs at least one candidate; optimal split indices must be nondecreasing.
- * Keep the previous layer fixed while computing the current one.
+ * Keep the previous layer fixed. Skip unreachable previous states to avoid INF+cost overflow;
+ * use a full split search if optimal indices are not monotone.
  * Time: O((N + (hi-lo)) \log N)
  * Status: tested on http://codeforces.com/contest/321/problem/E
  * Usage: // Implement lo,hi,f,store and declare DP arrays first.

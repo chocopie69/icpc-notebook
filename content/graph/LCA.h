@@ -4,7 +4,8 @@
  * Build on a connected tree; root defaults to 1 and is its own parent. goUp needs
  * 0<=steps<=h[u]. tin is single-entry DFS order. distance counts edges; weightedDistance sums
  * weights using ll root distances. Rebuild after edge changes; DFS is recursive.
- * Use this for kth ancestors or jump aggregates; Euler-tour + RMQ gives O(1) LCA queries.
+ * Use for kth ancestors; jump aggregates need an extra table/merge per level.
+ * Euler-tour + RMQ gives O(1) LCA queries. For a forest, build/query each component separately.
  * Usage: LCA tree(adj); // vector<vector<int>>, unit edge weights
  * int common=tree.lca(u,v);
  * int ancestor=tree.goUp(u,2); // requires tree.h[u]>=2

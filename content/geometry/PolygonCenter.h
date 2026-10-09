@@ -4,7 +4,8 @@
  * License: CC0
  * Source:
  * Description: Area centroid of a simple polygon with ordered boundary vertices and nonzero area; either
- * orientation works. Zero-area input divides by zero.
+ * orientation works. Zero-area input divides by zero; choose a problem-specific point/segment
+ * centroid separately, not the area formula.
  * Time: O(n)
  * Status: Tested
  * Usage: vector<P> p={{0,0},{3,0},{0,3}};

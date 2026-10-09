@@ -66,6 +66,12 @@ int main() {
 			dinicFlows[e.to] -= e.flow();
 		}
 		assert(flows == dinicFlows);
+		ll dinicCut = 0;
+		assert(dinic.leftOfMinCut(s));
+		assert(!dinic.leftOfMinCut(t));
+		rep(i,0,n) for (auto &e : dinic.adj[i])
+			if (dinic.leftOfMinCut(i) && !dinic.leftOfMinCut(e.to)) dinicCut += e.oc;
+		assert(dinicCut == flow);
 
 		// Conservation of flow for EdmondsKarp
 		vector<ll> ekFlows(n);

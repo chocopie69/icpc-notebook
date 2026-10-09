@@ -15,7 +15,8 @@
  * \end{minipage}
  * These are infinite lines, not bounded segments; each defining pair must contain distinct
  * points. Inspect the status before reading the point. Use Point<double> for fractional
- * coordinates; integer Point division truncates.
+ * coordinates; integer Point division truncates. For noisy real input, use tolerance for
+ * parallel/coincident tests, scaled to direction lengths.
  * Usage: auto [status,p]=lineInter(Point<double>(0,0),
  *   Point<double>(2,2),Point<double>(0,2),Point<double>(2,0));
  * // status: 1 unique, 0 parallel, -1 coincident.

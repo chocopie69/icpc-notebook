@@ -8,7 +8,8 @@
  * Lines and queries may arrive in any order; x, slopes and intercepts are integers. Call add
  * before the first query. For minimum queries, insert (-slope,-intercept) and negate the result.
  * Products, differences and intersection arithmetic must fit ll. lastX marks the final integer x
- * where a line is best.
+ * where a line is best. Floating variants need floating types throughout, infinite bounds
+ * and ordinary division.
  * Time: O(\log N)
  * Status: stress-tested
  * Usage: CHT hull; hull.add(2,3); hull.add(-1,7);

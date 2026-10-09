@@ -4,8 +4,8 @@
  * Description: Polynomial coefficients coeff[i] multiply $x^i$ (constant term first).
  * Evaluation uses Horner's rule. diff changes the polynomial to its derivative. divroot(r)
  * divides by x-r and discards the remainder, so normally call it only for a known root. Use a
- * nonempty coefficient vector and trim zero leading coefficients before root finding; do not
- * differentiate an empty polynomial.
+ * nonempty coefficient vector; after diff, constants become empty. Trim zero leading
+ * coefficients and handle constants/zero polynomials before polyRoots.
  * Usage: Poly p{{2,-3,1}}; double value=p(3); // 2
  * p.diff(); // coefficients {-3,2}
  */

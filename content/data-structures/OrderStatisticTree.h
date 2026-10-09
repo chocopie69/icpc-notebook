@@ -5,7 +5,7 @@
  * Source: hacKIT, NWERC 2015
  * Description: GNU PBDS set with 0-based ranks. order\_of\_key(x) counts elements <x; find\_by\_order(k)
  * returns an iterator, or end if absent. For duplicates use (value,uniqueId), not less\_equal.
- * Replace null\_type for a map.
+ * Replace null\_type for a map. join requires disjoint ordered key ranges, not interleaved sets.
  * Time: O(\log N)
  * Usage: OrderedSet<int> s; s.insert(8); s.insert(10);
  * int smaller=s.order_of_key(10); // 1

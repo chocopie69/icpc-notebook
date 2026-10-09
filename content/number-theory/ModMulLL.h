@@ -6,8 +6,8 @@
  * Description: Calculate $a\cdot b\bmod c$ (or $a^b \bmod c$) for $0 \le a, b \le c \le 7.2\cdot 10^{18}$.
  * Use for large-modulus exponentiation and primality/factorization when ordinary ll
  * multiplication would overflow. The three-argument modpow takes an explicit modulus. The large
- * bound assumes an 80-bit long double, typical with GNU on x86-64; double-width long double has
- * the smaller bound explained in Details. Normalize operands first and use a positive modulus.
+ * bound assumes an 80-bit long double; for other platforms or larger moduli use unsigned
+ * \_\_int128 multiplication/reduction. Normalize operands first and use a positive modulus.
  * Time: O(1) for \texttt{modmul}, O(\log b) for \texttt{modpow}
  * Status: stress-tested, proven correct
  * Details:

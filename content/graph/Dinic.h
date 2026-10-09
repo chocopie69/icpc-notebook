@@ -5,6 +5,14 @@
  * Source: https://cp-algorithms.com/graph/dinic.html
  * Description: Flow algorithm with complexity $O(VE\log U)$ where $U = \max |\text{cap}|$.
  * $O(\min(E^{1/2}, V^{2/3})E)$ if $U = 1$; $O(\sqrt{V}E)$ for bipartite matching.
+ * Dinic(n) uses vertices 0..n-1; capacities are nonnegative,
+ * with distinct source and sink. Discard self-loops; sums of capacities must fit ll.
+ * calc returns additional max flow and changes residual capacities. After calc,
+ * leftOfMinCut tests membership in the source side; Edge::flow gives positive flow.
+ * Fresh object for another network/source-sink pair; lower bounds need a circulation reduction.
+ * Full 64-bit capacity scaling: change 31 phases/shift 30 to 63 phases/shift 62.
+ * Usage: Dinic d(3); d.addEdge(0,1,5); d.addEdge(1,2,3);
+ * ll flow=d.calc(0,2); // 3; use reverse capacity c for an undirected edge
  * Status: Tested on SPOJ FASTFLOW and SPOJ MATCHING, stress-tested
  */
 #pragma once

@@ -4,7 +4,7 @@
  * Description: Single-source shortest paths for integer weights in [0,K], with small K.
  * Use K+1 cyclic buckets; current is the real distance, only bucket indices use modulo.
  * Skip stale entries. K=0 and zero-weight edges work; K=1 covers 0-1 BFS.
- * Allocate adj for your indexing; unreachable distances are 	exttt{LLONG\_MAX}.
+ * Allocate adj for your indexing; unreachable distances are LLONG\_MAX.
  * Negative weights are invalid. Large K needs too much scanning/memory; use heap Dijkstra.
  * Usage: vector<vector<pii>> adj(n+1); // {neighbor,weight}, weights 0..9
  * adj[u].push_back({v,3}); // add reverse edge too if undirected

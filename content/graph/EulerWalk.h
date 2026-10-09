@@ -8,7 +8,8 @@
  * edges, add one entry. For an open trail, choose an odd-degree start in an undirected graph, or
  * a vertex with outdegree=indegree+1 in a directed graph. For a cycle choose a vertex incident
  * to an edge. Returns edgeCount+1 vertices or an empty vector on failure. Open trails have
- * different endpoints.
+ * different endpoints. For 1-based vertices allocate n+1 and pass source explicitly;
+ * edge IDs remain 0-based. To require a cycle, also check walk.front()==walk.back().
  * Time: O(V + E)
  * Status: stress-tested
  * Usage: vector<vector<pii>> adj(3);

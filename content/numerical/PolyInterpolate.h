@@ -6,7 +6,7 @@
  * Description: Given $n$ points (x[i], y[i]), computes an n-1-degree polynomial $p$ that
  *  passes through them: $p(x) = a[0]*x^0 + ... + a[n-1]*x^{n-1}$.
  *  For numerical precision, pick $x[k] = c*\cos(k/(n-1)*\pi), k=0 \dots n-1$.
- * Use distinct x coordinates and n matching x/y values. Returns n coefficients in increasing
+ * Use n>=1 distinct x coordinates and n matching x/y values. Returns n coefficients in increasing
  * powers; result[0] is the constant term. Floating interpolation can be unstable for large n or
  * poorly spaced x. Use small well-scaled data, or a separate modular method for exact modular
  * answers.

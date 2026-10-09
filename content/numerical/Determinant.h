@@ -5,8 +5,8 @@
  * Source: folklore
  * Description: Calculates determinant of a matrix. Destroys the matrix.
  * Input must be square. Row swaps change the determinant sign; elimination modifies the matrix,
- * so copy it first if needed. The fixed pivot tolerance may classify very small determinants as
- * zero; scale input when numerical precision matters.
+ * so copy it first if needed. Zero is tested exactly; ill-conditioned inputs need scaling or
+ * higher precision. Do not use floating det for exact integer/modular answers.
  * Time: $O(N^3)$
  * Status: somewhat tested
  * Usage: vector<vector<double>> a={{1,2},{3,4}};

@@ -11,7 +11,7 @@
  * Assign each undirected edge a unique ID and store that same ID at both endpoints, including
  * parallel edges. The callback receives edge IDs, not vertex IDs. This implementation omits
  * bridges; process the marked bridge branch separately if needed. Clear edgeStack and reset
- * timer before a new graph.
+ * timer before a new graph. Self-loops are omitted; emit them separately if required.
  * Usage: adj.assign(n,{}); int id=0;
  * // For each (u,v), add (v,id) and (u,id) at both ends, then id++.
  * timer=0; edgeStack.clear();

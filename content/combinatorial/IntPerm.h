@@ -3,7 +3,7 @@
  * Date: 2018-07-06
  * License: CC0
  * Description: Maps a permutation of 0..n-1 to a unique ID in [0,n!), without preserving lexicographic order.
- * The return type is int; use n<=12.
+ * The return type is int; use n<=12. For 13..20 use ll rank; larger labels also need a wider mask.
  * Time: O(n)
  * Usage: vector<int> p={2,0,1}; int state=permToInt(p);
  */

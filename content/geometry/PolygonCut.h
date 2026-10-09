@@ -10,11 +10,11 @@
  * \begin{minipage}{15mm}
  * \vspace{-6mm}
  * \includegraphics[width=\textwidth]{content/geometry/PolygonCut}
- * \vspace{-6mm}
  * \end{minipage}
  * Use a convex polygon when a single output polygon is required. The implementation keeps the
  * strictly right side of start->finish, discarding points exactly on the line; it inserts
  * crossing points. The cutting line must have distinct endpoints. The result may be empty.
+ * To retain boundary-only pieces, use <=0 in both side tests; reverse the line to keep the left.
  * Usage: auto clipped=polygonCut(polygon,P(0,0),P(1,0));
  * // Keep y<0 plus crossing points.
  * Status: tested but not extensively

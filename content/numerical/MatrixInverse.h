@@ -7,7 +7,8 @@
  * the inverse of A mod p, and k is doubled in each step.
  * Use a square floating matrix. Only read the overwritten matrix as the inverse when the
  * returned rank equals its dimension; otherwise it is singular and partially modified. Row and
- * column pivoting use a fixed tolerance. Copy the original if it is needed afterward.
+ * column pivoting use a fixed tolerance; scale input or adjust it for extreme magnitudes.
+ * Copy the original if needed afterward; modular inversion needs a separate implementation.
  * Time: O(n^3)
  * Status: Slightly tested
  * Usage: vector<vector<double>> a={{2,0},{0,4}};

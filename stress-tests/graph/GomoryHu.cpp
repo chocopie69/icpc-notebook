@@ -51,8 +51,7 @@ void test(int N, int mxFlow, int iters) {
 			for (auto e : gomoryHuTree) {
 				minCut = min(minCut, e[2]);
 			}
-			auto mat2 = mat;
-			auto pa = globalMinCut(mat2);
+			auto pa = globalMinCut(mat);
 			assert(pa.first == minCut);
 			vi inCut(n);
 			assert(sz(pa.second) != 0);

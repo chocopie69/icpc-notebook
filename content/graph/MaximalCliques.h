@@ -9,7 +9,7 @@
  * Maximal means no vertex can be added; it does not mean largest. For a maximum clique use
  * MaximumClique, or examine every callback and keep the largest. Vertices are 0-based and there
  * are at most 128. Pass candidates containing exactly the valid vertex bits; the default mask
- * includes bits beyond n.
+ * includes bits beyond n. For more vertices, enlarge B and keep candidate bits within adj.
  * Time: O(3^{n/3}), much faster for sparse graphs
  * Status: stress-tested
  * Usage: vector<B> adj(n); B candidates;

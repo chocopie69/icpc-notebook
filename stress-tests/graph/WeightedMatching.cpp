@@ -20,11 +20,11 @@ void test(int N, int mxCost, int iters) {
 		for (int i = 0; i < m; i++)
 			mcmf.addEdge(2 + n + i, t, 1, 0);
 
-		vector<vi> cost(n, vi(m));
+		vector<vi> cost(n + 1, vi(m + 1));
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < m; j++) {
-				cost[i][j] = randRange(-mxCost, mxCost);
-				mcmf.addEdge(i + 2, 2 + n + j, 1, cost[i][j]);
+				cost[i + 1][j + 1] = randRange(-mxCost, mxCost);
+				mcmf.addEdge(i + 2, 2 + n + j, 1, cost[i + 1][j + 1]);
 			}
 		}
 		mcmf.setpi(s);
@@ -34,8 +34,9 @@ void test(int N, int mxCost, int iters) {
 		assert(maxflow.second == matching.first);
 		int matchSum = 0;
 		set<int> used;
-		for (int i = 0; i < n; i++) {
+		for (int i = 1; i <= n; i++) {
 			matchSum += cost[i][matching.second[i]];
+			assert(1 <= matching.second[i] && matching.second[i] <= m);
 			assert(used.count(matching.second[i]) == 0);
 			used.insert(matching.second[i]);
 		}

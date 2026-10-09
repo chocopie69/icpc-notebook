@@ -8,7 +8,7 @@
  * Use for XOR equations: each row bitset holds the first m coefficients and rhs entries are 0/1.
  * All coefficient bits from m upward must be zero and m<=1000. Returns rank or -1; free
  * variables are zero. Both matrix and rhs are modified. Each solution bit is that variable's
- * assigned value.
+ * assigned value. For m>1000, enlarge bs; \_Find\_next requires GNU bitset support.
  * Time: O(n^2 m)
  * Status: bruteforce-tested for n, m <= 4
  * Usage: vector<bs> a={bs(3),bs(1)}; vector<int> b={1,0}; bs x;

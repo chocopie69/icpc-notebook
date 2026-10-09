@@ -5,7 +5,7 @@
  * Source: My head
  * Description: Fixed-size square matrices, initially zero; N is a compile-time dimension. Exponent must be
  * nonnegative and $A^0$ is the identity. Multiplication has no modulus: add reduction or choose
- * a suitable scalar type, with products fitting that type.
+ * a suitable scalar type, with products and accumulated sums fitting that type.
  * Usage: Matrix<ll,2> a; a.data={{{1,1},{1,0}}};
  * array<ll,2> state={1,0};
  * auto next=(a^10)*state; // {89,55}

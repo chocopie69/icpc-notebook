@@ -7,6 +7,7 @@
  * For n equations in m unknowns, resize solution to m before calling: its size tells the solver
  * the number of columns. Rank m means unique solution; 0<=rank<m means free variables, chosen as
  * zero. Read solution only if rank!=-1. A and b are modified; copy them if needed.
+ * For poorly scaled floating input, adjust eps; modular equations need field arithmetic.
  * Time: O(n^2 m)
  * Status: tested on kattis:equationsolver, and bruteforce-tested mod 3 and 5 for n,m <= 3
  * Usage: vector<vd> a={{1,1},{1,-1}}; vd b={3,1}, x(2);

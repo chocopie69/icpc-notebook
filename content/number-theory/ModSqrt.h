@@ -7,7 +7,7 @@
  * Use an odd prime p and a quadratic residue a; test modpow(a,(p-1)/2,p)==1 for nonzero a first.
  * Nonresidues assert rather than return a failure marker. Handle p=2 separately. Requires the
  * three-argument modpow from ModMulLL.h; all direct products must fit ll. The other root is
- * (p-x)\%p.
+ * (p-x)\%p. For large p, replace direct modular products with modmul.
  * Time: O(\log^2 p) worst case, O(\log p) for most $p$
  * Status: Tested for all a,p <= 10000
  * Usage: ll x=sqrt(10LL,13LL); // 6 or 7

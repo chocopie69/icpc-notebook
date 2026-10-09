@@ -7,7 +7,7 @@
  * ccw polygon.
  * The polygon may be concave, but must be simple with nonzero-length edges. It is copied and
  * left unchanged. The area is signed: counterclockwise input gives positive area; take abs if
- * needed. Radius must be positive.
+ * needed. Radius must be positive; return 0 for radius 0 and remove consecutive duplicate vertices.
  * Time: O(n)
  * Status: Tested on GNYR 2019 Gerrymandering, stress-tested
  * Usage: double area=abs(circlePoly(P(0,0),1,polygon));

@@ -7,7 +7,8 @@
  * \begin{minipage}{75mm}
  * Returns extreme vertices in CCW order, omitting interior collinear boundary points. Input is
  * copied and sorted; empty/single-point inputs work, and collinear input reduces to endpoints.
- * Cross products must fit ll.
+ * Cross products must fit ll. To keep all boundary points, deduplicate, change <=0 to <0,
+ * and handle the all-collinear case separately (return sorted unique points).
  * \end{minipage}
  * \begin{minipage}{15mm}
  * \vspace{-6mm}

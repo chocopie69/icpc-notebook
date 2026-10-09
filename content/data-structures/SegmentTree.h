@@ -7,7 +7,8 @@
  * every position equals initialValue. To change the aggregate, edit T, merge and its identity
  * unit; use a wider T if needed. firstAtLeast(l,r,val) walks left first to find the smallest
  * position in [l,r] with value>=val, or -1 if absent. A node with maximum<val is skipped.
- * This search relies on the maximum aggregate; changing merge also requires changing the walk.
+ * This search relies on maximum; changing merge also changes the walk. update needs n>=1
+ * and 1<=pos<=n; use LazySegTree for range updates.
  * Usage: SegTree seg(5,0); seg.update(3,7);
  * int best=seg.query(2,4); // 7; positions 2,3,4
  * int pos=seg.firstAtLeast(2,5,6); // 3; first value >=6 in [2,5]

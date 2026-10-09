@@ -6,7 +6,7 @@
  * Description: Range assignment, addition and maximum on inclusive, 1-based [l,r]. The vector constructor
  * ignores values[0]; default initial value is -inf, so initialize finite values before addition.
  * Values and additions must fit int. Keep hasSet for assignments; changing to sums also requires
- * segment lengths.
+ * segment lengths. For multiplication/other tags, also change their composition order.
  * Usage: LazySegTree seg(5,0); seg.add(1,3,4); seg.set(2,2,9);
  * int best=seg.query(1,5); // 9
  * Time: $O(\log N)$ per operation; $O(N)$ memory.

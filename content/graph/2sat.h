@@ -5,7 +5,8 @@
  * Source: folklore
  * Description: 0-based variables; literals x and \texttt{\tilde{}x} mean true and false. either(a,b) adds a
  * OR b; implication a=>b is either(\texttt{\tilde{}a},b). setValue fixes a literal true. Read
- * values only if solve() succeeds. atMostOne can add auxiliary variables.
+ * values only if solve() succeeds. atMostOne can add auxiliary variables. For 1-based labels,
+ * convert x to x-1 before complementing: negative literal is \texttt{\tilde{}(x-1)}.
  * Usage: TwoSat ts(3); ts.either(0,~1); ts.setValue(2);
  * bool possible=ts.solve();
  * if (possible) { int valueOfZero=ts.values[0]; }

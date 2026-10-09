@@ -5,8 +5,8 @@ This personalized edition consists of 26 pages including the cover, for use in I
 
 See [kactl.pdf](./kactl.pdf) for the final, browsable version, and [content/](./content/) for raw source code.
 
-The page immediately after the cover contains the full ICPC strategy article from
-`doc/strategy.tex`, arranged in three columns. The Markov chains section is excluded.
+Compact ICPC strategy notes appear immediately before the troubleshooting checklist.
+The full article remains in `doc/strategy.tex`. The Markov chains section is excluded.
 
 ## Aspirations
 
@@ -90,8 +90,23 @@ size, and no LCA table or twice-entered Euler array. `moTree(queries,adj)` defau
 to a 1-based tree rooted at 1; adjacency has size N+1 with index 0 unused. Fill the
 `add`, `del`, and `calc` callbacks and reset their shared state before each call.
 Both versions include both endpoints and return answers in input order.
-The notebook excludes all network-flow algorithms; their source files remain in
-the repository alongside the other excluded algorithms.
+The notebook includes Dinic max flow, minimum-cut extraction, min-cost max-flow,
+and global minimum cut. Alternative max-flow implementations and Gomory-Hu remain
+available in the repository but are excluded from the PDF.
+General graph matching is also excluded: its randomized Tutte-matrix implementation
+requires modular matrix inversion and is difficult to adapt during a contest.
+Bipartite matching and weighted bipartite matching remain included.
+Hopcroft--Karp is the default for the maximum number of disjoint pairs between two
+groups without costs. The slower DFS matching entry is excluded, and minimum vertex
+cover now uses Hopcroft--Karp. Use minimum vertex cover to hit every bipartite edge
+with the fewest vertices, and Hungarian matching for a minimum-cost full assignment.
+Use min-cost max-flow for costed assignments with capacities or partial assignments.
+Matching APIs use 1-based vertex IDs; flow APIs use 0-based IDs. Hopcroft--Karp takes adjacency of
+size N+1 and a matchRight vector of size M+1 initialized to -1, with index 0 unused.
+Minimum vertex cover returns left IDs 1..N and right IDs N+1..N+M.
+Hungarian costs have size (N+1)*(M+1), with row/column 0 unused; match[i] is the
+1-based assigned column. Dinic(N) and MinCostMaxFlow(N) allocate vertices 0..N-1
+internally. Global minimum cut takes an N*N matrix and returns 0-based IDs.
 
 Every included algorithm has description and usage notes; see the
 [coverage list](./doc/snippet-usage.md). Notes state setup, indexing, assumptions,
@@ -100,6 +115,8 @@ are explicitly identified. Usage examples are printed in the PDF as well as kept
 in the source headers. Familiar algorithms use concise implementation notes;
 their full usage examples are retained. Aho-Corasick, 2D prefix sums, directed MST,
 and the Techniques appendix are excluded from this edition.
+The [special-case audit](./doc/special-cases.md) covers every included algorithm;
+short adaptation notes appear directly in its description or usage.
 
 Each algorithm contains a header with the author of the code, the date it
 was added, a description of the algorithm, its testing status, and preferably also
@@ -134,4 +151,5 @@ Fast Input, and Debugging tricks are excluded from the PDF.
 
 Persistent structures include a path-copying maximum segment tree (branching versions)
 and VNOI's timestamped 2D Fenwick tree (chronological updates, historical rectangle sums).
-Both use 1-based inclusive coordinates. Compact descriptions keep the notebook at 26 pages.
+Both use 1-based inclusive coordinates. With the core flow algorithms restored,
+the notebook fits in 26 pages with compact strategy notes before troubleshooting.

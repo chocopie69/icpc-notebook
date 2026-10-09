@@ -10,10 +10,11 @@
  * Takes as input the full adjacency list. VALS\_EDGES being true means that
  * values are stored in the edges, as opposed to the nodes. All values
  * initialized to the segtree default. Root must be 0.
- * Use for online path updates/queries with a commutative aggregate. The constructor reorders adj
- * in place and assumes vertices 0..n-1 rooted at 0. modifyPath adds a delta;
+ * Use a nonempty connected undirected tree. The constructor reorders its own adjacency copy;
+ * vertices are 0..n-1 rooted at 0 (relabel 1-based input). modifyPath adds a delta;
  * queryPath/querySubtree return maxima. With edge values each non-root vertex stores its parent
- * edge. Initialize finite tree values before addition, since the default is -inf.
+ * edge. Initialize finite values before addition. Edge path (u,u) returns INT\_MIN.
+ * Ordered/noncommutative queries need forward/reverse aggregates and path orientation.
  * Time: O((\log N)^2)
  * Usage: HLD<false> hld(adj); hld.tree.set(1,sz(adj),0);
  * hld.modifyPath(u,v,5); int best=hld.queryPath(u,v);

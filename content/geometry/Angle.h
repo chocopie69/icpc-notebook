@@ -9,7 +9,8 @@
  * Use nonzero integer direction vectors to sort events without atan2. turns distinguishes
  * directions after complete rotations. t90/t180/t360 rotate counterclockwise; segmentAngles
  * returns the shorter angular interval covering two directions. Intermediate integer products
- * must fit their types.
+ * must fit their types. angleDiff needs wider coordinate fields/products for large coordinates.
+ * Equal directions need a distance/event-type tie-break if sweep order matters.
  * Usage: vector<Angle> directions={{1,0},{0,1},{-1,0}};
  * sort(all(directions));
  * auto quarterTurn=Angle(1,0).t90();

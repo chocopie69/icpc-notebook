@@ -9,7 +9,7 @@
  * Exact branch-and-bound uses color bounds to prune search while retaining the largest clique.
  * Runtime can still be exponential. Supply a nonempty symmetric adjacency matrix with at most
  * 200 vertices and a zero diagonal. maxClique returns 0-based vertex IDs; construct a fresh
- * object for a new search.
+ * object for a new search. Handle n=0 before constructing; enlarge vb's bitset if n>200.
  * Time: Runs in about 1s for n=155 and worst case random graphs (p=.90). Runs
  * faster for sparse graphs.
  * Status: stress-tested

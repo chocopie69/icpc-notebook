@@ -17,7 +17,8 @@
  * Use a nondegenerate infinite line and a strictly convex counterclockwise hull with at least
  * three vertices. Results are edge/vertex indices, not coordinates; wrap i+1 modulo hull.size().
  * Intersect reported sides with the line to get coordinates. extrVertex returns the index
- * maximizing dot(direction,point).
+ * maximizing dot(direction,point); direction must be nonzero. Hulls of size <3 need
+ * point/segment intersection checks instead.
  * Time: O(\log n)
  * Status: stress-tested
  * Usage: auto hit=lineHull(Point<ll>(0,0),Point<ll>(1,0),hull);

@@ -9,6 +9,7 @@
  * (binary lifting): skip a block only if its whole sum is still below the target. With
  * frequencies, lowerBound(k) locates the kth item, counting duplicates. Updates may be negative,
  * but every resulting element must remain nonnegative for walking to work.
+ * Never update position 0. Range add/point query uses a difference BIT; range sums need two BITs.
  * Usage: Fenwick bit(5); bit.update(2,3); bit.update(4,7);
  * ll sum=bit.query(2,4); // 10
  * int pos=bit.lowerBound(4); // 4

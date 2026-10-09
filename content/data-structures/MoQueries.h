@@ -7,7 +7,8 @@
  * Fill add/del/calc and begin with empty state; side=0/1 means left/right endpoint.
  * No value updates between queries; answers follow input order. The included Hilbert helper
  * precomputes sorting keys without block-size tuning. bits covers every endpoint; int indices
- * fit ull keys. A single-element query has l=r.
+ * fit ull keys. A single-element query has l=r. Compress values for frequency arrays;
+ * queries mixed with updates need Mo with a time dimension.
  * Usage: auto answers=mo({{1,3},{2,5},{3,3}});
  * // Fill add/del/calc; [1,3] means positions 1,2,3; [3,3] means only position 3.
  * Time: $O(Q\log Q+Q\log(N+1)+N\sqrt Q)$ with $O(1)$ add/del/calc; $O(Q+\log(N+1))$ memory excluding custom state.

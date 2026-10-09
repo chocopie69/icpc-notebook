@@ -5,7 +5,8 @@
  * Source: My head with inspiration from tinyKACTL
  * Description: Use Point<ll> for exact integer cross/dot products and Point<double> for fractional
  * coordinates. p.cross(a,b) means (a-p) cross (b-p). perp rotates 90 degrees CCW; rotate takes
- * radians. unit/normal require a nonzero vector; products must fit T.
+ * radians. unit/normal require a nonzero vector and floating T; integer division/rotation truncate.
+ * Large integer predicates need wider cross/dot intermediates, e.g. \_\_int128.
  * Status: Works fine, used a lot
  * Usage: Point<ll> a(0,0), b(2,0), c(0,3);
  * ll cross=a.cross(b,c); // 6, c is left of a->b

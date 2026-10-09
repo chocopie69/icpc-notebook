@@ -1,9 +1,12 @@
 /**
  * Author: Unknown
  * Description: DAG skeleton with vertices 1..n: define maxN and read n,m first. The stack pops vertices in
- * topological order; ans[u] is the 1-based position of u. A detected cycle prints an error and
- * exits. Clear g and visited between cases.
+ * topological order; fill ans[u] with its position when popping (the skeleton does not fill it).
+ * A detected cycle prints an error and
+ * exits. Clear g, visited and topo between cases. To handle cycles without exiting,
+ * return a failure flag; deep graphs need iterative DFS or Kahn's algorithm.
  * Usage: // Define maxN and read n,m before the shown main body.
+ * // Pop topo to obtain the order and assign ans[u]=++position.
  * // Reset visited and clear g for another test case.
  */
 int visited[maxN], ans[maxN];

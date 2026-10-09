@@ -5,12 +5,19 @@
  * Description: Min-cost max-flow.
  *  If costs can be negative, call setpi before maxflow, but note that negative cost cycles are not supported.
  *  To obtain the actual flow, look at positive values only.
+ *  MinCostMaxFlow(n) uses vertices 0..n-1; capacities nonnegative,
+ *  source and sink distinct.
+ *  Build all edges before solving; maxflow changes edge flows and returns {flow,cost}.
+ *  For exactly F units, add a new source with an edge of capacity F to s; require returned flow F.
+ *  Distances/potentials must stay within INF; products and doubled totalCost must fit ll.
+ * Usage: MinCostMaxFlow m(3); m.addEdge(0,1,2,-1); m.addEdge(1,2,2,3);
+ * m.setpi(0); auto [flow,cost]=m.maxflow(0,2); // {2,4}; solve once
  * Status: Tested on kattis:mincostmaxflow, stress-tested against another implementation
  * Time: $O(F E \log(V))$ where F is max flow. $O(VE)$ for setpi.
  */
 #pragma once
 
-// #include <bits/extc++.h> /// include-line, keep-include
+#include <ext/pb_ds/priority_queue.hpp> /// keep-include
 
 const ll INF = numeric_limits<ll>::max() / 4;
 struct MinCostMaxFlow {
@@ -57,7 +64,7 @@ struct MinCostMaxFlow {
           }
         }
     }
-    for (int i = 0; i < (n); ++i) potential[i] = min(potential[i] + dist[i], INF);
+    for (int i = 0; i < n; ++i) potential[i] = min(potential[i] + dist[i], INF);
   }
   pair<ll, ll> maxflow(int s, int t) {
     ll totalFlow = 0, totalCost = 0;
@@ -72,7 +79,7 @@ struct MinCostMaxFlow {
         adj[edge->to][edge->rev].flow -= pushed;
       }
     }
-    for (int i = 0; i < (n); ++i)
+    for (int i = 0; i < n; ++i)
       for (Edge &e : adj[i]) totalCost += e.cost * e.flow;
     return {totalFlow, totalCost / 2};
   }
@@ -83,7 +90,7 @@ struct MinCostMaxFlow {
     int roundsLeft = n, changed = 1;
     ll newPotential;
     while (changed-- && roundsLeft--)
-      for (int i = 0; i < (n); ++i)
+      for (int i = 0; i < n; ++i)
         if (potential[i] != INF)
           for (Edge &e : adj[i])
             if (e.cap)

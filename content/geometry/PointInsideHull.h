@@ -8,7 +8,8 @@
  * the hull. If strict is true, points on the boundary aren't included.
  * The hull must be nonempty, convex, and in boundary order, without interior collinear vertices;
  * convexHull produces suitable input. Use for many containment queries rather than scanning
- * every edge. strict=false includes edges and vertices.
+ * every edge. strict=false includes edges and vertices; hulls of size 1/2 work.
+ * Return false before calling for an empty hull.
  * Usage: auto hull=convexHull(points);
  * bool inside=inHull(hull,Point<ll>(2,3),false);
  * Status: stress-tested

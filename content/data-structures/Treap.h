@@ -8,7 +8,8 @@
  * This is an implicit treap: in-order position is the key. split(root,k) separates the first k
  * values; merge(a,b) concatenates sequences. Positions and ranges are 0-based, with ranges
  * [l,r). Save roots returned by ins/merge, and recalc after changing children. Extend recalc for
- * sums or lazy tags.
+ * sums or lazy tags; push pending tags before split/merge descent. move's targetPos is in
+ * the original sequence and must lie outside (left,right); moving inside is a no-op to handle first.
  * Time: $O(\log N)$
  * Status: stress-tested
  * Usage: TreapNode *root=nullptr;

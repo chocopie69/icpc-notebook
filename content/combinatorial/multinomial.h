@@ -4,6 +4,7 @@
  * Source: Max Bennedich
  * Description: Counts multiset arrangements: $\frac{(\sum k_i)!}{\prod k_i!}$. counts[i] must be nonnegative.
  * Exact integer calculation without a modulus; the result and intermediate products must fit ll.
+ * For large exact counts use big integers; modular counts need factorials/inverses, not integer /.
  * Status: Tested on kattis:lexicography
  * Usage: vector<int> counts={2,1}; ll ways=multinomial(counts); // 3
  */

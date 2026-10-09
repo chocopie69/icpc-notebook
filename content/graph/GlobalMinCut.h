@@ -4,6 +4,12 @@
  * License: CC0
  * Source: https://en.wikipedia.org/wiki/Stoer%E2%80%93Wagner_algorithm
  * Description: Find a global minimum cut in an undirected graph, as represented by an adjacency matrix.
+ * Matrix has size N*N, indexed 0..N-1. It is symmetric, nonnegative,
+ * with zero diagonal and N>=2. Returned vertices are 0-based.
+ * Returns {cut weight, vertices on one side}; copies the matrix. Disconnected graphs give 0.
+ * Weight sums must fit int; otherwise use ll matrix/weights/result and LLONG\_MIN/MAX sentinels.
+ * Usage: vector<vector<int>> mat={{0,3},{3,0}};
+ * auto [weight,side]=globalMinCut(mat); // weight=3
  * Time: O(V^3)
  * Status: Stress-tested together with GomoryHu
  */
@@ -12,19 +18,19 @@ pair<int, vector<int>> globalMinCut(vector<vector<int>> mat) {
   pair<int, vector<int>> best = {INT_MAX, {}};
   int n = sz(mat);
   vector<vector<int>> co(n);
-  for (int i = 0; i < (n); ++i) co[i] = {i};
+  for (int i = 0; i < n; ++i) co[i] = {i};
   for (int ph = 1; ph < (n); ++ph) {
     vector<int> w = mat[0];
     size_t s = 0, t = 0;
     for (int it = 0; it < (n - ph); ++it) { // O(V^2) -> O(E log V) with prio. queue
       w[t] = INT_MIN;
-      s = t, t = max_element(all(w)) - w.begin();
-      for (int i = 0; i < (n); ++i) w[i] += mat[t][i];
+      s = t, t = max_element(w.begin(), w.end()) - w.begin();
+      for (int i = 0; i < n; ++i) w[i] += mat[t][i];
     }
     best = min(best, {w[t] - mat[t][t], co[t]});
     co[s].insert(co[s].end(), all(co[t]));
-    for (int i = 0; i < (n); ++i) mat[s][i] += mat[t][i];
-    for (int i = 0; i < (n); ++i) mat[i][s] = mat[s][i];
+    for (int i = 0; i < n; ++i) mat[s][i] += mat[t][i];
+    for (int i = 0; i < n; ++i) mat[i][s] = mat[s][i];
     mat[0][t] = INT_MIN;
   }
   return best;

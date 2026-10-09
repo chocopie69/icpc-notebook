@@ -9,6 +9,7 @@
  * The predicate must be monotone false-to-true as p/q increases, and true at 1. limit>=1 bounds
  * both p and q. Compare fractions by cross multiplication to avoid rounding; products must fit
  * ll. Finds an exact bounded fraction rather than a floating approximation.
+ * For positive fractions beyond 1, change initial hi to {1,0}; predicate must handle q=0.
  * Usage: Frac answer=fracBS([](Frac x) { return 3*x.p>=x.q; },10);
  * // answer is {1,3}
  * Time: O(\log(N))

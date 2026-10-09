@@ -2,11 +2,22 @@
  * Author: Stanford
  * Date: Unknown
  * Source: Stanford Notebook
- * Description: KD-tree (2d, can be extended to 3d)
+ * Description: KD-tree (2D; see below for higher dimensions).
  * Static nearest-neighbor queries on a nonempty set of integer points. nearest returns (squared
  * distance,point); the query point itself is allowed if present. Bounding boxes prune search,
  * but worst-case queries can visit every point. Uncomment the leaf check to exclude equal
- * points. There are no insertions/deletions.
+ * points. To exclude only the same input item but allow duplicates, store IDs instead.
+ * No insertions/deletions; free allocated nodes between large repeated cases. Distances must fit T.
+ * For 3D, 4D, etc., set a fixed dimension D and replace Point.h/P with array<T,D>.
+ * Replace the x/y bounds with arrays lo/hi, initialized to INF/-INF, and update all D coordinates.
+ * Split on the coordinate k with largest hi[k]-lo[k]; sort with a[k] < b[k].
+ * In distance(), clamp each p[k] to [lo[k],hi[k]] and sum the squared coordinate differences.
+ * At a leaf, replace (p-point).dist2() with the sum of (p[k]-point[k]) squared over all k.
+ * array supplies the lexicographic comparison needed for ties; construct queries as P{3,7,2}
+ * for D=3 (four coordinates for D=4, etc.). Search/nearest otherwise stay unchanged.
+ * Pruning becomes less effective as D grows; logarithmic query time is not guaranteed.
+ * Time: Build O(n \log^2 n); query O(n) worst case, often near O(\log n) in low dimensions.
+ * For D dimensions: build O(n \log^2 n + Dn \log n), query O(Dn) worst case; space O(Dn).
  * Status: Tested on excellentengineers
  * Usage: KDTree tree(points);
  * auto [distance2,nearestPoint]=tree.nearest(P(3,7));

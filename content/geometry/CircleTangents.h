@@ -10,7 +10,8 @@
  * To find the tangents of a circle with a point set r2 to 0.
  * Each returned pair is a tangent segment joining the two tangency points. Use Point<double>;
  * negating the second radius requests internal tangents rather than a physically negative
- * radius. Coincident centers return no tangents.
+ * radius. Coincident centers return no tangents. If the tangent points coincide, use a line
+ * perpendicular to the center direction; the returned pair alone cannot define that line.
  * Status: tested
  * Usage: auto external=tangents(Point<double>(0,0),1,
  *   Point<double>(4,0),1); // two tangent pairs

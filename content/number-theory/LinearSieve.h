@@ -2,6 +2,7 @@
  * Author: Personal Code::Blocks abbreviation, adapted
  * Description: lp[x] is the smallest prime factor for 2<=x<=n; lp[0]=lp[1]=0. Each composite
  * is generated once. Uses more memory than the boolean sieve, but supports fast factorization.
+ * Factor only x<=n with lp; larger x needs trial division or Pollard-rho.
  * Usage: LinearSieve sieve(100);
  * int smallest=sieve.lp[84]; // 2
  * int x=84;

@@ -3,7 +3,8 @@
  * Description: Polynomial prefix hash with base 31 and modulus 1000000003. getHash uses 1-based
  * inclusive [l,r], although the input string is normal 0-based. Compare equal-length substrings.
  * A single fixed hash can collide: use KMP for exact matching, or two independent moduli when
- * adversarial collisions matter. No updates; this version expects lowercase a..z.
+ * adversarial collisions matter. No updates; expects lowercase a..z. Other alphabets need
+ * positive symbol IDs and a suitable base; normalize signed chars. Require 1<=l<=r<=n.
  * Usage: StringHash hash("ababa");
  * bool same=hash.getHash(1,3)==hash.getHash(3,5); // both "aba"
  * StringHash pattern("aba");

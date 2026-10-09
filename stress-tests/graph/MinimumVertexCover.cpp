@@ -2,10 +2,11 @@
 
 #include "../../content/graph/MinimumVertexCover.h"
 #include "../../content/graph/HopcroftKarp.h"
+#include "../../content/graph/DFSMatching.h"
 
-vi coverHK(vector<vi>& g, int n, int m) {
+vi coverDFS(vector<vi>& g, int n, int m) {
 	vi match(m, -1);
-	int res = hopcroftKarp(g, match);
+	int res = dfsMatching(g, match);
 	vector<bool> lfound(n, true), seen(m);
 	for(auto &it: match) if (it != -1) lfound[it] = false;
 	vi q, cover;
@@ -81,8 +82,11 @@ int main() {
 				} */
 			}
 		};
-		vi cover1 = cover(gr, N, M);
-		vi cover2 = coverHK(gr, N, M);
+		vector<vi> oneBased(N + 1);
+		rep(i,0,N) for (int j : gr[i]) oneBased[i + 1].push_back(j + 1);
+		vi cover1 = cover(oneBased, N, M);
+		for (int &id : cover1) --id;
+		vi cover2 = coverDFS(gr, N, M);
 		assert(sz(cover1) == sz(cover2));
 		verify(cover1);
 		verify(cover2);

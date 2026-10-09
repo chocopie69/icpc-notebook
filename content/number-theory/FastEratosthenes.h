@@ -3,7 +3,7 @@
  * Date: 2020-04-12
  * License: CC0
  * Description: Prime sieve for generating all primes smaller than LIM.
- * Set LIM before compilation and call eratosthenes once. Returns primes in increasing order and
+ * Set LIM>=3 before compilation and call eratosthenes once. Returns primes in increasing order and
  * fills the global isPrime bitset below LIM. This segmented version skips even candidates to
  * reduce memory traffic; use when generating a large prime list.
  * Time: LIM=1e9 $\approx$ 1.5s

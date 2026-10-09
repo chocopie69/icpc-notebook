@@ -9,7 +9,7 @@
  * Use for discrete logarithms when sqrt(modulus) work/storage fit. Also supports non-coprime
  * bases. The exponent is strictly positive: target=1 asks for a multiplicative order, not
  * exponent zero. Normalize base and target to [0,modulus); modulus is positive and direct
- * modular products must fit ll.
+ * modular products must fit ll. If exponent 0 is allowed, return 0 first when target==1\%modulus.
  * Time: $O(\sqrt m)$
  * Status: tested for all 0 <= a,x < 500 and 0 < m < 500.
  *

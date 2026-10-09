@@ -7,6 +7,7 @@
  * include all updates at or before it. Only the latest state can be updated; branching is unsupported.
  * Each BIT cell stores {time,sum}; binary search selects its historical value. The dense
  * N*M history vectors can be expensive. For 1D, remove the y loops and use history[x].
+ * Compress huge sparse coordinates first; prefix queries use upper\_bound ranks.
  * Usage: PersistentFenwick2D bit(n,m);
  * bit.update(2,3,5,1); // add 5 at (2,3), time 1
  * bit.update(2,3,-2,2); // time 2; negative deltas are allowed

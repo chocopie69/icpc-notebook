@@ -6,12 +6,18 @@ Notes explain when to use each snippet, indexing, input assumptions, return valu
 
 Tree Mo follows upstream KACTL's direct endpoint walking. Its header states inclusive paths, root/indexing conventions, callback setup, state reset, and adaptation to edge values.
 
+All 108 active algorithm entries have a [special-case review](./special-cases.md). Short notes identify inputs requiring extra setup or a variant, including degenerate geometry, empty inputs, large arithmetic, flow demands, alternate aggregates and alphabet changes. Executable code is unchanged by this documentation audit.
+
 Excluded from the current PDF: Aho-Corasick, 2D prefix sums, directed MST, the Techniques appendix, Shell setup, Vim setup, and Code checksum. Dependency captions are retained; snippet hashes and line counts are hidden. Data structures follows Combinatorial.
 
 ## Per-snippet coverage
 
 | Snippet | Notes |
 | --- | --- |
+| [Dinic.h](../content/graph/Dinic.h) | Max flow; residual state, source-side cut and usage |
+| [MinCut.h](../content/graph/MinCut.h) | Cut extraction recipe after max flow |
+| [MinCostMaxFlow.h](../content/graph/MinCostMaxFlow.h) | Flow/cost result, negative-cost setup, indexing and usage |
+| [GlobalMinCut.h](../content/graph/GlobalMinCut.h) | Undirected matrix assumptions, cut side and usage |
 | [IntPerm.h](../content/combinatorial/IntPerm.h) | Concise description; full usage |
 | [multinomial.h](../content/combinatorial/multinomial.h) | Concise description; full usage |
 | [OrderStatisticTree.h](../content/data-structures/OrderStatisticTree.h) | Concise description; full usage |
@@ -54,10 +60,8 @@ Excluded from the current PDF: Aho-Corasick, 2D prefix sums, directed MST, the T
 | [BellmanFord.h](../content/graph/BellmanFord.h) | Expanded description and usage |
 | [TopoSort.h](../content/graph/TopoSort.h) | Concise description; full usage |
 | [HopcroftKarp.h](../content/graph/HopcroftKarp.h) | Concise description; full usage |
-| [DFSMatching.h](../content/graph/DFSMatching.h) | Concise description; full usage |
 | [MinimumVertexCover.h](../content/graph/MinimumVertexCover.h) | Concise description; full usage |
 | [WeightedMatching.h](../content/graph/WeightedMatching.h) | Expanded description and usage |
-| [GeneralMatching.h](../content/graph/GeneralMatching.h) | Expanded description and usage |
 | [SCC.h](../content/graph/SCC.h) | Concise description; full usage |
 | [BiconnectedComponents.h](../content/graph/BiconnectedComponents.h) | Expanded description and usage |
 | [2sat.h](../content/graph/2sat.h) | Concise description; full usage |
@@ -159,3 +163,13 @@ Added PersistentSegmentTree.h: path-copying, point assignment and inclusive rang
 Added PersistentFenwick.h: the VNOI article's timestamped 2D BIT, with 1-based coordinates, inclusive historical rectangle sums and same-time update coalescing. Updates must arrive in nondecreasing time order; this structure does not branch. History lookup compares timestamps only, avoiding a sentinel bound on values. Notes state dense-grid memory cost and how to reduce it to one dimension.
 
 Kept the PDF at 26 pages by shortening descriptions of centroid decomposition, interval/tree Mo, SOS DP, weighted/general matching, iterative segment tree, custom hash map and Dial; removed repeated centroid comments. Usage examples and customization hooks remain. No algorithms were removed and no font-size reduction was used.
+
+## Restored flow algorithms and 26-page budget
+
+Restored Dinic, minimum-cut extraction, min-cost max-flow and global minimum cut, with setup and usage notes. Dinic provides the general max-flow implementation; PushRelabel, EdmondsKarp and GomoryHu remain excluded. GeneralMatching is excluded because its randomized Tutte-matrix inversion is specialized and difficult to adapt during a contest; bipartite matching and weighted bipartite matching remain.
+
+The page limit is 26 pages including the cover. Replaced the standalone strategy page with compact notes immediately before the troubleshooting checklist; the full article remains in doc/strategy.tex.
+
+Removed the slower standalone DFS matching entry and switched MinimumVertexCover to HopcroftKarp. Matching descriptions now distinguish unweighted pair count, bipartite edge coverage and minimum-cost full assignment, with examples and a pointer to min-cost flow for capacities or partial assignments.
+
+The included matching APIs are 1-based; flow APIs are 0-based. HopcroftKarp takes N+1 adjacency lists and M+1 matching entries (initialized to -1); index 0 is unused. MinimumVertexCover returns left IDs 1..N and right IDs N+1..N+M. Hungarian takes an (N+1)*(M+1) matrix with row/column 0 unused and returns an N+1 matching vector with 1-based column IDs. Dinic(N) and MinCostMaxFlow(N) allocate N entries internally for vertices 0..N-1. GlobalMinCut takes an N*N matrix and returns 0-based vertices. Flow stress tests use 0-based IDs directly; matching tests translate their independent 0-based references at the API boundary; the minimum-cover reference uses DFS matching.

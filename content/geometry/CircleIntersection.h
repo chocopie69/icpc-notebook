@@ -6,7 +6,7 @@
  * Returns false in case of no intersection.
  * On success the pair contains both intersections; at tangency they are equal. Coincident
  * circles have infinitely many intersections and trigger an assertion, so handle that case
- * before calling. Radii must be nonnegative.
+ * before calling. Radii must be nonnegative; near tangency needs tolerant separation tests.
  * Status: stress-tested
  * Usage: pair<P,P> points;
  * bool intersects=circleInter(P(0,0),P(2,0),2,2, &points);

@@ -11,7 +11,7 @@
  * Use when recurrence order is small but the requested index is huge. initial contains exactly n
  * initial terms; recurrence[j] multiplies S[i-j-1]. index is 0-based and nonnegative. Supply the
  * global mod used by the code; the hidden value 5 is only for repository tests. Products must
- * fit ll.
+ * fit ll. Require n>=1 and index<LLONG\_MAX; normalize negative terms/coefficients modulo mod.
  * Usage: ll fib=linearRec({0,1},{1,1},10);
  * // 55 modulo the configured mod
  * Time: O(n^2 \log k)
