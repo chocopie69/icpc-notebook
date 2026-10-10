@@ -6,7 +6,7 @@ help:
 	@echo "This makefile builds KACTL (KTH Algorithm Competition Template Library)"
 	@echo ""
 	@echo "Available commands are:"
-	@echo "	make fast		- to build KACTL, quickly (only runs LaTeX once)"
+	@echo "	make fast		- to build KACTL, quickly (two passes for page headers)"
 	@echo "	make kactl		- to build KACTL"
 	@echo "	make clean		- to clean up the build process"
 	@echo "	make veryclean		- to clean up and remove kactl.pdf"
@@ -18,6 +18,7 @@ help:
 	@echo "For more information see the file 'doc/README'"
 
 fast: | build
+	$(LATEXCMD) content/kactl.tex </dev/null
 	$(LATEXCMD) content/kactl.tex </dev/null
 	cp build/kactl.pdf kactl.pdf
 
@@ -38,9 +39,12 @@ build:
 
 test:
 	./doc/scripts/run-all.sh .
+	python3 doc/scripts/test-notebook.py
+	python3 stress-tests/numerical/BigInt.py
+	python3 doc/scripts/test-page-headers.py
 
 test-compiles:
-	./doc/scripts/compile-all.sh .
+	python3 doc/scripts/test-notebook.py --all
 
 test-session.pdf: content/test-session/test-session.tex content/test-session/chapter.tex | build
 	$(LATEXCMD) content/test-session/test-session.tex

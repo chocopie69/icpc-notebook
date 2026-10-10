@@ -2,14 +2,19 @@
  * Author: Per Austrin
  * Date: 2004-02-08
  * License: CC0
- * Description: Finds the real roots to a polynomial.
+ * Description: Numerically finds real solutions of p(x)=0; does not find complex roots.
+ * Use for polynomial equation solving or intersections of two curves (solve their difference).
+ * For extrema of p, solve its derivative and also check interval endpoints; this is not an
+ * optimizer by itself. Returned values are approximate doubles, not exact algebraic numbers.
  * Uses derivative roots to split the line into monotone pieces, then bisects sign changes. Use a
  * nonconstant polynomial with nonzero leading coefficient and coefficients in increasing degree
  * order. Choose bounds covering the roots of interest; this implementation may also return
  * candidates outside those bounds. Repeated roots without a sign change are not guaranteed and
  * need separate handling (test derivative roots with a tolerance). Filter results to your bounds.
  * Usage: auto roots=polyRoots(Poly{{2,-3,1}},-10,10);
- * // approximately {1,2}
+ * // approximately {1,2}; keep only roots inside the desired interval
+ * Poly p{{2,-3,1}}, derivative=p; derivative.diff();
+ * auto critical=polyRoots(derivative,-10,10); // {1.5}, where p'(x)=0
  * Time: O(n^2 \log(1/\epsilon))
  */
 #pragma once

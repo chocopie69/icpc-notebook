@@ -1,13 +1,18 @@
 /**
  * Author: David Rydh, Per Austrin
  * Date: 2003-03-16
- * Description: Polynomial coefficients coeff[i] multiply $x^i$ (constant term first).
- * Evaluation uses Horner's rule. diff changes the polynomial to its derivative. divroot(r)
+ * Description: Stores a real polynomial and supports evaluation, differentiation and division
+ * by a linear factor. Use for evaluating formulas, finding slopes/critical points, or removing
+ * a known root before solving the remaining polynomial. Coefficients coeff[i] multiply $x^i$
+ * (constant term first): {2,-3,1} means $2-3x+x^2$. p(x) returns its value using Horner's rule.
+ * diff changes p to its derivative; copy p first if the original is still needed. divroot(r)
  * divides by x-r and discards the remainder, so normally call it only for a known root. Use a
  * nonempty coefficient vector; after diff, constants become empty. Trim zero leading
  * coefficients and handle constants/zero polynomials before polyRoots.
+ * Time: O(d) per operation, where d is the degree; O(d) storage.
  * Usage: Poly p{{2,-3,1}}; double value=p(3); // 2
- * p.diff(); // coefficients {-3,2}
+ * Poly derivative=p; derivative.diff(); // {-3,2}; derivative(3)=3
+ * Poly quotient=p; quotient.divroot(1); // {-2,1}: p(x)=(x-1)(x-2)
  */
 #pragma once
 struct Poly {

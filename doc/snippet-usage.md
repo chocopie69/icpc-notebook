@@ -14,6 +14,7 @@ Excluded from the current PDF: Aho-Corasick, 2D prefix sums, directed MST, the T
 
 | Snippet | Notes |
 | --- | --- |
+| [BigInt.h](../content/number-theory/BigInt.h) | Standard-library signed big integers; five arithmetic operators, decimal I/O and C++ division/remainder semantics |
 | [Dinic.h](../content/graph/Dinic.h) | Max flow; residual state, source-side cut and usage |
 | [MinCut.h](../content/graph/MinCut.h) | Cut extraction recipe after max flow |
 | [MinCostMaxFlow.h](../content/graph/MinCostMaxFlow.h) | Flow/cost result, negative-cost setup, indexing and usage |
@@ -108,7 +109,7 @@ Excluded from the current PDF: Aho-Corasick, 2D prefix sums, directed MST, the T
 | [IntervalContainer.h](../content/various/IntervalContainer.h) | Expanded description and usage |
 | [IntervalCover.h](../content/various/IntervalCover.h) | Expanded description and usage |
 | [ConstantIntervals.h](../content/various/ConstantIntervals.h) | Expanded description and usage |
-| [TernarySearch.h](../content/various/TernarySearch.h) | Concise description; full usage |
+| [TernarySearch.h](../content/various/TernarySearch.h) | Integer and double overloads; maximizing position, unimodality assumptions, precision and usage |
 | [FastKnapsack.h](../content/various/FastKnapsack.h) | Expanded description and usage |
 | [KnuthDP.h](../content/various/KnuthDP.h) | Expanded description and usage |
 | [DivideAndConquerDP.h](../content/various/DivideAndConquerDP.h) | Expanded description and usage |

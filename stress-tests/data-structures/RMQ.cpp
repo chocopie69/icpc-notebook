@@ -5,15 +5,12 @@
 int main() {
 	srand(2);
 	rep(N,0,100) {
-		vi v(N);
-		rep(i,0,N) v[i] = i;
-		random_shuffle(all(v));
-		SparseTable<int> rmq(v);
-		rep(i,0,N) rep(j,i+1,N+1) {
-			int m = rmq.query(i,j);
-			int n = 1 << 29;
-			rep(k,i,j) n = min(n, v[k]);
-			assert(n == m);
+		vi v(N+1);
+		rep(i,1,N+1) v[i] = rand()%2001-1000;
+		SparseTable rmq(v);
+		rep(i,1,N+1) rep(j,i,N+1) {
+			assert(rmq.getMin(i,j) == *min_element(v.begin()+i,v.begin()+j+1));
+			assert(rmq.getMax(i,j) == *max_element(v.begin()+i,v.begin()+j+1));
 		}
 	}
 	cout<<"Tests passed!"<<endl;

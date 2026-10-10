@@ -54,8 +54,6 @@ def ordoescape(input, esc=True):
 def addref(caption, outstream):
     caption = pathescape(caption).strip()
     print(r"\kactlref{%s}" % caption, file=outstream)
-    with open('header.tmp', 'a') as f:
-        f.write(caption + "\n")
 
 COMMENT_TYPES = [
     ('/**', '*/'),
@@ -210,31 +208,21 @@ def getfilename(input):
     return input.rsplit('/',1)[-1]
 
 def print_header(data, outstream):
-    parts = data.split('|')
-    until = parts[0].strip() or parts[1].strip()
-    if not until:
-        # Nothing on this page, skip it.
+    # TeX supplies the actual entries on this page from the previous pass.
+    # Deduplicate without losing document order; no mutable build-global queue.
+    lines = list(dict.fromkeys(x.strip() for x in data.split('|') if x.strip()))
+    if not lines:
         return
-    with open('header.tmp') as f:
-        lines = [x.strip() for x in f.readlines()]
-    if until not in lines:
-        # Nothing new on the page.
-        return
-
-    ind = lines.index(until) + 1
-    header_length = len("".join(lines[:ind]))
+    header_length = len("".join(lines))
     def adjust(name):
         return name if name.startswith('.') else name.split('.')[0]
-    output = r"\enspace{}".join(map(adjust, lines[:ind]))
+    output = r"\enspace{}".join(pathescape(adjust(x)) for x in lines)
     font_size = 10
     if header_length > 150:
         font_size = 8
     output = r"\hspace{3mm}\textbf{" + output + "}"
     output = "\\fontsize{%d}{%d}" % (font_size, font_size) + output
     print(output, file=outstream)
-    with open('header.tmp', 'w') as f:
-        for line in lines[ind:]:
-            f.write(line + "\n")
 
 def main():
     language = None

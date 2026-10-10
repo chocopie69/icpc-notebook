@@ -21,8 +21,10 @@ T rectilinear_mst_n(vector<P> ps) {
 	sort(all(edges), [](edge a, edge b) { return a.weight < b.weight; });
 	DSU uf(sz(ps));
 	for (auto e: edges)
-		if (uf.join(e.src, e.dst))
+		if (!uf.joined(e.src, e.dst)) {
+			uf.join(e.src, e.dst);
 			cost += e.weight;
+		}
 	return cost;
 }
 
@@ -41,7 +43,11 @@ signed main() {
 				sort(all(edges));
 				DSU uf(sz(pts));
 				int cost = 0, joined = 0;
-				for (auto e: edges) if (uf.join(e[1], e[2])) cost += e[0], joined++;
+				for (auto e: edges) if (!uf.joined(e[1], e[2])) {
+					uf.join(e[1], e[2]);
+					cost += e[0];
+					joined++;
+				}
 				if (num_pts > 0) assert(joined == num_pts - 1);
 				assert(cost == rectilinear_mst_n(pts));
 		}

@@ -5,7 +5,8 @@
  * Description: Given $a[i] = \min_{lo(i) \le k < hi(i)}(f(i, k))$ where the (minimal)
  * optimal $k$ increases with $i$, computes $a[i]$ for $i = L..R-1$.
  * Customization skeleton for one DP layer. Replace lo/hi with valid split bounds, f with
- * previousLayer[split]+cost(split,index), and store with destination arrays. solve(l,r) covers
+ * previousLayer[split]+cost(split,index), and store with destination arrays (pair<int,ll> for answer).
+ * solve(l,r) covers
  * [l,r). Each index needs at least one candidate; optimal split indices must be nondecreasing.
  * Keep the previous layer fixed. Skip unreachable previous states to avoid INF+cost overflow;
  * use a full split search if optimal indices are not monotone.
@@ -19,7 +20,7 @@ struct DivideConquerDP { // Modify at will:
   int lo(int index) { return 0; }
   int hi(int index) { return index; }
   ll f(int index, int split) { return dp[index][split]; }
-  void store(int index, int split, ll value) { answer[index] = pii(split, value); }
+  void store(int index, int split, ll value) { answer[index] = make_pair(split, value); }
   void rec(int l, int r, int optL, int optR) {
     if (l >= r) return;
     int mid = (l + r) >> 1;

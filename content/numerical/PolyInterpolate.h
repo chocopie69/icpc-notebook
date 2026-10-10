@@ -3,9 +3,13 @@
  * Date: 2017-05-10
  * License: CC0
  * Source: Wikipedia
- * Description: Given $n$ points (x[i], y[i]), computes an n-1-degree polynomial $p$ that
+ * Description: Given $n$ points (x[i], y[i]), computes the unique polynomial $p$ of degree
+ * at most n-1 that
  *  passes through them: $p(x) = a[0]*x^0 + ... + a[n-1]*x^{n-1}$.
- *  For numerical precision, pick $x[k] = c*\cos(k/(n-1)*\pi), k=0 \dots n-1$.
+ * Use when a polynomial of known degree d is available only through values: sample d+1 distinct
+ * x values, recover coefficients, then evaluate/differentiate with Poly. This fits every supplied
+ * point exactly in exact arithmetic; it is not least-squares regression for noisy observations.
+ * If sample locations are free and n>1, pick $x[k] = c*\cos(k/(n-1)*\pi), k=0 \dots n-1$.
  * Use n>=1 distinct x coordinates and n matching x/y values. Returns n coefficients in increasing
  * powers; result[0] is the constant term. Floating interpolation can be unstable for large n or
  * poorly spaced x. Use small well-scaled data, or a separate modular method for exact modular
@@ -13,6 +17,7 @@
  * Time: O(n^2)
  * Usage: auto coeff=interpolate({0,1,2},{1,4,9},3);
  * // approximately {1,2,1}, representing (x+1)^2
+ * Poly p{coeff}; double value=p(3); // 16; include Polynomial.h for Poly
  */
 #pragma once
 

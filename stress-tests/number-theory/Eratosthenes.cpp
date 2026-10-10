@@ -22,17 +22,19 @@ vi eratosthenes(int LIM) {
 }
 #include "../../content/number-theory/FastEratosthenes.h"
 #include "../../content/number-theory/Eratosthenes.h"
+#include "../../content/number-theory/LinearSieve.h"
 
 
 int main() {
-	vi pr1 = eratosthenesSieve(LIM);
+	vi pr1 = PrimeSieve(LIM - 1).primes;
 	vi pr2 = eratosthenes();
 	assert(pr1 == pr2);
 
 	for (int lim=121; lim<1000; lim++) {
-		vi pr = eratosthenesSieve(lim);
+		vi pr = PrimeSieve(lim - 1).primes;
 		vi r = dynamic::eratosthenes(lim);
 		assert(pr == r);
+		assert(pr == LinearSieve(lim - 1).primes);
 	}
 	cout<<"Tests passed!"<<endl;
 }

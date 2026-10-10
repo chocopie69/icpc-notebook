@@ -1,88 +1,65 @@
 #include "../utilities/template.h"
-#include "../utilities/genTree.h"
-
 #include "../../content/graph/LCA.h"
+#include "../../content/graph/LCAEuler.h"
 #include "../../content/graph/BinaryLifting.h"
-#include "../../content/data-structures/RMQ.h"
-
-namespace old {
-typedef vector<pii> vpi;
-typedef vector<vpi> graph;
-
-struct LCA {
-	vi time;
-	vector<ll> dist;
-	SparseTable<pii> rmq;
-
-	LCA(graph& C) : time(sz(C), -99), dist(sz(C)), rmq(dfs(C)) {}
-
-	vpi dfs(graph& C) {
-		vector<tuple<int, int, int, ll>> q(1);
-		vpi ret;
-		int T = 0, v, p, d; ll di;
-		while (!q.empty()) {
-			tie(v, p, d, di) = q.back();
-			q.pop_back();
-			if (d) ret.emplace_back(d, p);
-			time[v] = T++;
-			dist[v] = di;
-			for(auto &e: C[v]) if (e.first != p)
-				q.emplace_back(e.first, v, d+1, di + e.second);
-		}
-		return ret;
-	}
-
-	int query(int a, int b) {
-		if (a == b) return a;
-		a = time[a], b = time[b];
-		return rmq.query(min(a, b), max(a, b)).second;
-	}
-	ll distance(int a, int b) {
-		int lca = query(a, b);
-		return dist[a] + dist[b] - 2 * dist[lca];
-	}
-};
+#include "../../content/graph/CompressTree.h"
+int main() {
+  mt19937 rng(814);
+  for (int it = 0; it < 2000; ++it) {
+    int n = 1 + rng()%100, base = it%2, root = base + rng()%n;
+    vector<vector<int>> adj(n+base);
+    vector<vector<pll>> weighted(n+base);
+    for (int v = base+1; v < n+base; ++v) {
+      int u = base + rng()%(v-base), w = (int)(rng()%2001)-1000;
+      adj[u].push_back(v); adj[v].push_back(u);
+      weighted[u].push_back({v,w}); weighted[v].push_back({u,w});
+    }
+    vector<int> par(n+base), depth(n+base);
+    vector<ll> dist(n+base);
+    auto dfs = [&](auto &self, int u, int p) -> void {
+      par[u] = p;
+      for (auto [v,w] : weighted[u]) if (v != p) {
+        depth[v] = depth[u]+1; dist[v] = dist[u]+w;
+        self(self, (int)v, u);
+      }
+    };
+    dfs(dfs, root, root);
+    auto up = buildAncestorTable(par);
+    LCA binary(adj,root), weights(weighted,root);
+    LCAEuler euler(adj,root);
+    for (int q = 0; q < 200; ++q) {
+      int u = base+rng()%n, v = base+rng()%n, a=u, b=v;
+      while (depth[a] > depth[b]) a=par[a];
+      while (depth[b] > depth[a]) b=par[b];
+      while (a != b) a=par[a], b=par[b];
+      assert(binary.lca(u,v)==a && weights.lca(u,v)==a && euler.lca(u,v)==a);
+      assert(lca(up,depth,u,v)==a);
+      assert(binary.distance(u,v)==depth[u]+depth[v]-2*depth[a]);
+      assert(euler.distance(u,v)==binary.distance(u,v));
+      assert(weights.weightedDistance(u,v)==dist[u]+dist[v]-2*dist[a]);
+      int steps=rng()%(depth[u]+1), ancestor=u;
+      for (int k=0; k<steps; ++k) ancestor=par[ancestor];
+      assert(binary.goUp(u,steps)==ancestor && goUp(up,u,steps)==ancestor);
+    }
+    vector<int> subset;
+    for (int q=0; q<20; ++q) subset.push_back(base+rng()%n);
+    auto compressed=compressTree(binary,subset);
+    set<int> vertices(subset.begin(),subset.end());
+    for (int u:subset) for (int v:subset) vertices.insert(binary.lca(u,v));
+    assert(compressed.size()==vertices.size());
+    for (int i=0; i<sz(compressed); ++i) {
+      int u=compressed[i].second, p=compressed[i].first;
+      assert(vertices.erase(u)==1);
+      assert(p>=0 && p<=i);
+      assert(binary.lca(u,compressed[p].second)==compressed[p].second);
+      if (i) {
+        int nearest=root, best=-1;
+        for (auto [unused,v]:compressed)
+          if (v!=u && binary.lca(u,v)==v && depth[v]>best) nearest=v,best=depth[v];
+        assert(compressed[p].second==nearest);
+      }
+    }
+    assert(vertices.empty() && compressTree(binary,{}).empty());
+  }
+  cout << "Tests passed!\n";
 }
-
-
-void getPars(vector<vi> &tree, int cur, int p, int d, vector<int> &par, vector<int> &depth) {
-	par[cur] = p;
-	depth[cur] = d;
-	for(auto i: tree[cur]) if (i != p) {
-		getPars(tree, i, cur, d+1, par, depth);
-	}
-}
-void test_n(int n, int num) {
-	for (int out=0; out<num; out++) {
-		auto graph = genRandomTree(n);
-		vector<vi> tree(n);
-		vector<vector<pair<int, int>>> oldTree(n);
-		for (auto i: graph) {
-			tree[i.first].push_back(i.second);
-			tree[i.second].push_back(i.first);
-			oldTree[i.first].push_back({i.second, 1});
-			oldTree[i.second].push_back({i.first, 1});
-		}
-		vector<int> par(n), depth(n);
-		getPars(tree, 0, 0, 0, par, depth);
-		vector<vi> tbl = buildAncestorTable(par);
-		LCA new_lca(tree, 0);
-		old::LCA old_lca(oldTree);
-		for (int i=0; i<100; i++) {
-			int a = rand()%n, b = rand()%n;
-			int binLca = lca(tbl, depth, a, b);
-			int newLca = new_lca.lca(a,b);
-			int oldLca = old_lca.query(a,b);
-			assert(oldLca == newLca);
-			assert(binLca == newLca);
-		}
-	}
-}
-
-signed main() {
-	test_n(10, 1000);
-	test_n(100, 100);
-	test_n(1000, 10);
-	cout<<"Tests passed!"<<endl;
-}
-

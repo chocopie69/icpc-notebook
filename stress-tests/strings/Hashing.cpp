@@ -4,32 +4,31 @@
 
 #include <sys/time.h>
 int main() {
-	assert((HashValue(1)*2+1-3).get() == 0);
 
 	rep(it,0,10000) {
 		int n = rand() % 10;
 		int alpha = rand() % 10 + 1;
 		string s;
 		rep(i,0,n) s += (char)('a' + rand() % alpha);
-		RollingHash hi(s);
+		StringHash hi(s);
 		set<string> strs;
 		set<ull> hashes;
 
 		// RollingHash
-		rep(i,0,n+1) rep(j,i,n+1) {
+		rep(i,0,n) rep(j,i+1,n+1) {
 			string sub = s.substr(i, j - i);
-			ull hash = hashString(sub).get();
-			assert(hi.hashInterval(i, j).get() == hash);
+			ull hash = 0;
+			for (char c : sub) hash = (hash*31+c-'a'+1)%1000000003;
+			assert(hi.getHash(i+1, j) == (ll)hash);
 			hashes.insert(hash);
 			strs.insert(sub);
 		}
 
 		// getHashes
 		rep(le,1,n+1) {
-			auto ve = getHashes(s, le);
-			assert(sz(ve) == n-le+1);
 			rep(i,0,n-le+1) {
-				assert(ve[i].get() == hi.hashInterval(i, i + le).get());
+				StringHash window(s.substr(i,le));
+				assert(window.getHash(1,le) == hi.getHash(i+1, i+le));
 			}
 		}
 

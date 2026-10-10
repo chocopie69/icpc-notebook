@@ -9,6 +9,7 @@
  * with distinct source and sink. Discard self-loops; sums of capacities must fit ll.
  * calc returns additional max flow and changes residual capacities. After calc,
  * leftOfMinCut tests membership in the source side; Edge::flow gives positive flow.
+ * See MinCut.h for code to list both sides and the cut edges using original capacities.
  * Fresh object for another network/source-sink pair; lower bounds need a circulation reduction.
  * Full 64-bit capacity scaling: change 31 phases/shift 30 to 63 phases/shift 62.
  * Usage: Dinic d(3); d.addEdge(0,1,5); d.addEdge(1,2,3);

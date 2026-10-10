@@ -1,12 +1,21 @@
 \chapter{Numerical}
 
 \section{Polynomials and recurrences}
+  Use Polynomial for known coefficients, PolyRoots for real zeros, and PolyInterpolate
+  to recover coefficients from sampled values. LinearRecurrence computes a distant sequence
+  term modulo an integer; its coefficients describe previous terms, not powers of $x$.
+  These snippets are copied separately: Polynomial and LinearRecurrence both name a type
+  \texttt{Poly}; rename the latter alias if combining them.
   \kactlimport{Polynomial.h}
   \kactlimport{PolyRoots.h}
   \kactlimport{PolyInterpolate.h}
   \kactlimport{LinearRecurrence.h}
 
 \section{Matrices}
+  \begingroup
+    \kactlcontentdir{content/data-structures}
+    \kactlimport{Matrix.h}
+  \endgroup
   \kactlimport{Determinant.h}
   \kactlimport{IntDeterminant.h}
   \kactlimport{SolveLinear.h}
@@ -14,4 +23,4 @@
   \kactlimport{SolveLinearBinary.h}
   \kactlimport{MatrixInverse.h}
   % \kactlimport{MatrixInverse-mod.h}
-  \kactlimport{Tridiagonal.h}
+  % \kactlimport{Tridiagonal.h}

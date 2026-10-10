@@ -3,12 +3,20 @@
  * Date: 2017-10-31
  * License: CC0
  * Source: Wikipedia
- * Description: Recovers any $n$-order linear recurrence relation from the first
- * $2n$ terms of the recurrence.
- * Useful for guessing linear recurrences after brute-forcing the first terms.
- * Should work on any field, but numerical stability for floats is not guaranteed.
- * Output will have size $\le n$.
- * Usage: berlekampMassey({0, 1, 1, 3, 5, 11}) // {1, 2}
+ * Description: Finds the shortest constant-coefficient linear recurrence fitting a nonempty
+ * prefix s modulo the prime mod from ModPow.h. Returns coefficients c with
+ * $s[i]=c[0]s[i-1]+c[1]s[i-2]+\dots$. Normalize input to [0,mod); products must fit ll.
+ * Use after computing small DP/counting terms when the recurrence is unknown, then use
+ * linearRec for a distant term. If the true sequence has order at most n, its first 2n terms
+ * suffice to recover a valid recurrence. Without such a bound, matching a finite prefix does
+ * not prove future terms; validate on additional terms. This code requires prime mod for inverses.
+ * An all-zero prefix returns an empty recurrence; handle it before calling linearRec.
+ * Usage: vector<ll> s={0,1,1,3,5,11}; // reduce each term modulo mod first
+ * for (ll &x : s) x%=mod;
+ * auto c=berlekampMassey(s); // {1,2}: S[i]=S[i-1]+2*S[i-2]
+ * vector<ll> initial(s.begin(),s.begin()+sz(c));
+ * // With LinearRecurrence.h and the same mod configured:
+ * ll answer=c.empty() ? 0 : linearRec(initial,c,1000000000000LL);
  * Time: O(N^2)
  * Status: bruteforce-tested mod 5 for n <= 5 and all s
  */

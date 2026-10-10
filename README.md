@@ -5,8 +5,9 @@ This personalized edition consists of 26 pages including the cover, for use in I
 
 See [kactl.pdf](./kactl.pdf) for the final, browsable version, and [content/](./content/) for raw source code.
 
-Compact ICPC strategy notes appear immediately before the troubleshooting checklist.
-The full article remains in `doc/strategy.tex`. The Markov chains section is excluded.
+ICPC strategy notes, Modular Exponentiation, Tridiagonal Linear System, the Möbius Function section, and FastEratosthenes are excluded from the PDF.
+Big Integer Arithmetic provides signed +, -, *, /, and % using only standard C++ headers.
+The full strategy article remains in `doc/strategy.tex`. The Markov chains section is excluded.
 
 ## Aspirations
 
@@ -145,11 +146,17 @@ To help trace things back, sources and authors are noted in source files.
 Everything in `stress-tests` is implicitly CC0, except reference implementations taken from around the Internet.
 
 The DP section includes SOS subset/superset transforms and inverses. The tree section
-includes centroid decomposition with a nearest-marked-vertex example. Fast Modular,
+includes centroid decomposition with an exact-length path-counting example. Fast Modular,
 Fast Input, and Debugging tricks are excluded from the PDF.
 
 
 Persistent structures include a path-copying maximum segment tree (branching versions)
 and VNOI's timestamped 2D Fenwick tree (chronological updates, historical rectangle sums).
 Both use 1-based inclusive coordinates. With the core flow algorithms restored,
-the notebook fits in 26 pages with compact strategy notes before troubleshooting.
+the notebook targets 26 pages with strategy notes, Modular Exponentiation, Tridiagonal Linear System, Möbius Function, and FastEratosthenes excluded.
+
+The [final review](./doc/final-review.md) records correctness fixes, test results,
+and recommended algorithm additions. Run `make test` for the stress suite,
+selected-header checks, customization tests, BigInt's Python oracle, and page-header tests.
+Run `make test-compiles` to check all eligible headers with the personal template.
+The Python checker also runs directly on Windows: `python doc/scripts/test-notebook.py`.
